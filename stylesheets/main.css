@@ -83,6 +83,14 @@ a:hover
 }
 
 
+.wip
+{
+  margin-top: 1em;
+  border: 0.5em solid #F8F8F8;
+  padding: 1em;
+}
+
+
 /* HOMEPAGE */
 
 #home #articles, #home #posts
