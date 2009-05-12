@@ -40,14 +40,29 @@ body
   clear: both;
 }
 
-h1 
+#header h1 
 {
   font-size: 1.8em;
+  display: inline;
 }
+
+#header a
+{
+  font-size: 1.5em;
+  text-decoration: none;
+  margin-left: 1em;
+  color: #AAA;
+}
+
+#header a:hover
+{
+  color: #666;
+}
+
 
 a
 {
-  color: #00A;
+  color: #33A;
   font-weight: bold;
   text-decoration: underline;
 }
@@ -66,4 +81,43 @@ a:hover
 {
   font-size: 1.2em;
 }
+
+
+/* HOMEPAGE */
+
+#home #articles, #home #posts
+{
+  float: left;
+  padding: 1em;
+}
+
+#home #posts
+{
+  width: 32.5em;  
+  padding-left: 0;
+}
+
+#home #articles
+{
+  width: 33.5em;
+  border-left: 1px solid #CCC;
+}
+
+#home h2
+{
+  font-size: 1.4em;
+}
+
+#home #articles li li
+{
+  margin-left: 2em;
+  list-style-type: disc;
+}
+
+#home #articles a
+{
+  font-size: 1.2em;
+}
+
+
 
