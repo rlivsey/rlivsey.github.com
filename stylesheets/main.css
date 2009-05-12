@@ -1,0 +1,69 @@
+body 
+{
+  background-color: #F8F8F8;
+  font-size: 62.5%;
+  font-family: helvetica, arial, sans-serif;
+  line-height: 1.8;
+}
+
+#wrap 
+{
+  width: 70em;
+  padding: 1em;
+  margin: 3em auto 2em auto;
+  border: 1em solid #CCC;
+  background-color: #FFF;
+}
+
+#footer
+{
+  font-size: 1.2em;
+  border-top: 0.5em solid #EEE;
+  padding-top: 1em;
+  margin-top: 1em;
+}
+
+#footer p.info, #footer p.links
+{
+  float: left;
+  margin: 0 3em 0 0;
+}
+
+#footer p.avatar
+{
+  float: right;
+}
+
+#footer p.license
+{
+  text-align: center;
+  clear: both;
+}
+
+h1 
+{
+  font-size: 1.8em;
+}
+
+a
+{
+  color: #00A;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+a:hover
+{
+  color: #000;
+}
+
+#contents
+{
+  min-height: 30em;
+}
+
+#contents p
+{
+  font-size: 1.2em;
+}
+

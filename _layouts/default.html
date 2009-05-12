@@ -3,14 +3,42 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
-   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-   <title>{{ page.title }}</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>{{ page.title }}</title>   
+  <link type="text/css" charset="utf-8" href="/stylesheets/reset.css" media="all" rel="Stylesheet" />
+  <link type="text/css" charset="utf-8" href="/stylesheets/main.css" media="all" rel="Stylesheet" />
 </head>
 <body>
-
-  <h1>{{ page.title }}</h1>
+<div id="wrap">
+  <div id="header">
+    <h1>{{ page.title }}</h1>
+  </div>
   
-  {{ content }}
+  <div id="contents">
+    {{ content }}
+  </div>
 
+  <div id="footer">    
+    <p class="avatar">
+      <img src="/images/manga.jpg" />
+    </p>
+    
+    <p class="info">
+      <strong>Richard Livsey</strong><br />
+      Web Developer<br />
+      richard@livsey.org      
+    </p>
+    
+    <p class="links">
+      <a href="http://livsey.org">livsey.org</a><br />      
+      <a href="http://github.com/rlivsey">github.com/rlivsey</a><br />
+      <a href="http://twitter/rlivsey">twitter.com/rlivsey</a>
+    </p>
+    
+    <p class="license">
+      All content is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/uk/">Creative Commons Non-Commercial-Share Alike</a>
+    </p>
+  </div>
+</div>
 </body>
 </html>
