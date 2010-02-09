@@ -156,6 +156,7 @@ MultiComplete.AjaxLoader = Class.create(MultiComplete.Base, {
     this.input.value = "loading";
     
     new Ajax.Request(this.url, {
+      method: 'get',
       onComplete: this.loaded.bind(this)
     });
   },
