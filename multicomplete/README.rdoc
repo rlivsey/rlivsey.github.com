@@ -1,0 +1,15 @@
+= MultiComplete
+
+Extensible auto-complete tool built on Prototype and Scriptaculous
+
+It handles the basics of displaying a text field which has an auto-complete dropdown. What happens then is up to you.
+
+Easily extendable by passing in overrides in the config, or sub-classing to provide your own functionality.
+
+Take a look at the examples for ideas of what you can do with it.
+
+* doesn't care what kind of data you have, arrays, hashes etc...
+* populate the data with Ajax, local data, select boxes, anything
+* allow single or multiple selections
+* basically whatever you want it to do
+
