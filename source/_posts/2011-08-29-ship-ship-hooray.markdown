@@ -78,7 +78,7 @@ In my day job managing projects over the years I preached agile development, sma
 
 Even things I didn't have first hand experience in I should have known via talking to others or from [Hacker News](http://news.ycombinator.com) over the years.
 
-For some reason when you're building it for yourself and don't have anyone to report to these things go out of the window!
+For some reason when you're building it for yourself and don't have anyone to report to these things go out of the window.
 
 This process has made me a much better developer, a much better manager and no matter what happens to MinuteBase I've no doubt that it makes me a far more capable person than I was before.
 
