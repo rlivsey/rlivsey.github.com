@@ -56,7 +56,7 @@ That's not to say that we shouldn't or couldn't be doing more of that side of th
 
 ### We've been too quiet
 
-If you look at the MinuteBase blog or Twitter feed, you'll see there's not a lot there. All the posts are about changes to the app and new features.
+If you look at the [MinuteBase blog](http://blog.minutebase.com) or [Twitter stream](http://twitter.com/minutebase), you'll see there's not a lot there. All the posts are about changes to the app and new features.
 
 We need to get much better at producing original content and linking to interesting material so that the blog itself can work as a marketing channel. As it stands, unless you're a MinuteBase user, there's not much point subscribing to our blog or following us on Twitter.
 
