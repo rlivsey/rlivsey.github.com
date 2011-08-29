@@ -2,10 +2,10 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://yoursite.com
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
+url: http://livsey.org
+title: Livsey.org
+subtitle: Musings on Technology &amp; Startup Life
+author: Richard Livsey
 simple_search: http://google.com/search
 
 # RSS / Email (optional) subscription links (change if using something like Feedburner)
@@ -36,7 +36,10 @@ excerpt_link: "Read on &rarr;"  # "Continue reading" link text at the bottom of 
 
 # list each of the sidebar modules you want to include, in the order you want them to appear.
 # To add custom asides, create files in /source/_includes/custom/asides/ and add them to the list like 'custom/asides/custom_aside_name.html'
-default_asides: [asides/recent_posts.html, asides/twitter.html, asides/delicious.html, asides/pinboard.html]
+default_asides: 
+- custom/asides/about.html
+- asides/recent_posts.html
+- asides/twitter.html
 
 # Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
 # and add an array with the asides you want to use.
@@ -49,7 +52,7 @@ default_asides: [asides/recent_posts.html, asides/twitter.html, asides/delicious
 # ----------------------- #
 
 # Twitter
-twitter_user:
+twitter_user: rlivsey
 twitter_tweet_count: 4
 twitter_show_replies: false
 twitter_follow_button: true
@@ -60,16 +63,8 @@ twitter_tweet_button: true
 google_plus_one: true
 google_plus_one_size: medium
 
-# Pinboard
-pinboard_user:
-pinboard_count: 3
-
-# Delicious
-delicious_user:
-delicious_count: 3
-
 # Disqus Comments
-disqus_short_name:
+disqus_short_name: rlivsey
 
 # Google Analytics
 google_analytics_tracking_id:
