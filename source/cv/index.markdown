@@ -19,7 +19,7 @@ Richard has the rare quality of combining management and people skills with an e
 {% endblockquote %}
 
 
-## MinuteBase
+### MinuteBase
 Co-Founder & CTO, 2009 &ndash; Present
 
 MinuteBase was founded in 2009 by Richard Livsey and Fabian Sasson. We had worked together on several web applications meeting with customers, gathering requirements, and documenting those discussions with the traditional mix of email, Office documents and calendars. We realised we needed to move beyond what we called "dead documents" - those destined to be printed out and forgotten.
@@ -30,7 +30,7 @@ In June 2011 we released MinuteBase 2.0 and started charging.
 
 Technologies: Rails &bull; MongoDB &bull; ElasticSearch &bull; jQuery &bull; CoffeeScript &bull; Java &bull; Chef
 
-## Freelance Ruby Consultant
+### Freelance Ruby Consultant
 
 2010 &ndash; Present
 
@@ -47,7 +47,7 @@ Clients have included:
 Technologies: Rails &bull; MongoDB &bull; MySQL &bull; jQuery &bull; Zepto.js &bull; CoffeeScript &bull; Backbone.js
 
 
-## Victor Chandler
+### Victor Chandler
 
 Development Manager, Gibraltar, March 2009 &ndash; April 2010
 
@@ -64,7 +64,7 @@ Continuous integration and deployment enabled us to reduce the time taken for a 
 Technologies: Rails &bull; MySQL &bull; jQuery &bull; jQuery Mobile &bull; Backbone.js
 
 
-## CitySafe
+### CitySafe
 
 Head of Development & CTO, September 2006 &ndash; March 2009
 
@@ -79,7 +79,7 @@ Our systems were put to use in a number of high profile events, such as the 7/7 
 Technologies: Rails &bull; PHP &bull; PostgreSQL &bull; PostGIS &bull; Ext JS
 
 
-## Exclusive Analysis
+### Exclusive Analysis
 
 Developer & Outsourced Development Management, 2003 &ndash; 2005
 
@@ -91,9 +91,9 @@ Over the course of the project I managed outsourced developers based throughout 
 
 Technologies: PHP &bull; Flash/ActionScript &bull; MySQL
 
-# Education
+## Education
 
-## Lancaster University Management School
+### Lancaster University Management School
 
 MSc, Management - E-Business & Innovation, 2005 &ndash; 2006
 
@@ -107,7 +107,7 @@ I also joined the free-fall society and learned to sky-dive!
 
 I've been invited to return on a number of occasions to speak to the current students about agile development and entrepreneurship, which is always a rewarding experience.
 
-## Lancaster University
+### Lancaster University
 
 2.1, Computer Science, 2000 &ndash; 2003
 
