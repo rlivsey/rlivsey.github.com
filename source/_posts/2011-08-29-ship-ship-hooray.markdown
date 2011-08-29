@@ -26,17 +26,17 @@ Our first version wasn't quite an MVP, we probably could have launched earlier, 
 
 ### We dog-fooded right from the beginning
 
-Because MinuteBase was built to solve a problem we actually had, we were able to use it right from the earliest stages in the companies we worked for and to collaborate with our clients. Using it every day means we have a better idea of where we need to improve than having to wait for other people to tell us.
+Because MinuteBase was built to solve a problem we actually had, we were able to use it right from the earliest stages in the companies we worked for and to collaborate with our clients. We also use MinuteBase to build MinuteBase, by writing up all our meetings and discussions, sharing documents and tracking the tasks and actions as we go.
 
-I'm even using it right now to write up this blog post, you can [see it at MinuteBase here](http://livsey.minutebase.com/meetings/ship-ship-hooray).
+Using it every day means we have a better idea of where we need to improve than having to wait for other people to tell us.  I'm even using it right now to write up this blog post, you can [see it at MinuteBase here](http://livsey.minutebase.com/meetings/ship-ship-hooray).
 
 ## What could be improved
 
-### Too long iterations
+### Iterations were too long
 
 MinuteBase 2 initially started off as some small improvements to the prototype app, there's nothing there which we couldn't have added in iteratively as we went. Instead we put too many changes and into one release and ended up taking far too long to get changes in-front of our users where we could get feedback.
 
-### Changed technology stack
+### We changed technology stack mid-stream
 
 The first version was built using Merb, MySQL, DataMapper and Prototype. Our version 2 is Rails 3, MongoDB, MongoMapper, ElasticSearch and jQuery. Very little code survives from the initial prototype.
 
@@ -48,7 +48,7 @@ However, building one to throw away meant that when we were building "version 2"
 
 There's no reason why we couldn't have enabled payment 6 months ago, in version 1 of the app. Instead we convinced ourselves that it wasn't ready, and that we'd turn on payment after "this one next feature" or bug fix. Of course because our iterations were too large, that "one next feature" ended up taking months, during which time we could have been bringing in money and proving the business model. We even had people asking how they could pay us!
 
-### No "business guy"
+### We didn't have a "business guy"
 
 After going through this process I think the ultimate founding team is a designer, a developer and a business-person. While we're building the product there's no one focused on sales & marketing or just getting out there and talking to people.
 
@@ -62,7 +62,7 @@ We need to get much better at producing original content and linking to interest
 
 This has to change and we're going to be spending much more time on this in future.
 
-### Too specific a name
+### MinuteBase might be too specific a name
 
 Our original focus was to build the best tool to take meeting minutes and we chose our name based on that. Call it scope creep, or pivoting, but the MinuteBase of today does far more than just meeting minutes.
 
@@ -72,11 +72,7 @@ Time will tell how much of a problem this is, but having a more generic name or 
 
 ## In Closing
 
-So many of these lessons are things I already knew.
-
-In my day job managing projects over the years I preached agile development, small iterations, test driven development.
-
-Even things I didn't have first hand experience in I should have known via talking to others or from [Hacker News](http://news.ycombinator.com) over the years.
+So many of these lessons are things should have already known. In my day job managing projects over the years I preached agile development, small iterations, test driven development. Even things I didn't have first hand experience in I should have known via talking to others or from [Hacker News](http://news.ycombinator.com) over the years.
 
 For some reason when you're building it for yourself and don't have anyone to report to these things go out of the window.
 
