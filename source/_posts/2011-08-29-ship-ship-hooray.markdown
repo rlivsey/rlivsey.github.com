@@ -8,7 +8,7 @@ categories: minutebase startups
 
 It's been a few days since we turned on payment and, in my eyes at least, officially shipped [MinuteBase](http://minutebase.com). We've been in beta for quite some time, but having paying customers is the major milestone which transforms it from a "project" into an actual business. I've learned a huge amount and thought that now is a good time to look back at our progress.
 
-## What we did well
+## What went well
 
 ### We based MinuteBase on a problem we actually experienced
 
@@ -30,7 +30,7 @@ Because MinuteBase was built to solve a problem we actually had, we were able to
 
 I'm even using it right now to write up this blog post, you can [see it at MinuteBase here](http://livsey.minutebase.com/meetings/ship-ship-hooray).
 
-## Lesson learned
+## What could be improved
 
 ### Too long iterations
 
