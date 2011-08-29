@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Ship Ship Hooray!"
+title: "Ship Ship Hooray! What I've learned from launching MinuteBase"
 date: 2011-08-29 17:30
 comments: true
 categories: minutebase startups
