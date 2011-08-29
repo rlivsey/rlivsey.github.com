@@ -4,7 +4,7 @@
   <title>Livsey.org</title>
   <link href="http://livsey.org/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2011-08-29T18:35:55+01:00</updated>
+  <updated>2011-08-29T18:40:02+01:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name>Richard Livsey</name>
@@ -19,7 +19,7 @@
     <id>http://livsey.org/blog/2011/08/29/ship-ship-hooray</id>
     <content type="html">&lt;p&gt;It's been a few days since we turned on payment and, in my eyes at least, officially shipped &lt;a href=&quot;http://minutebase.com&quot;&gt;MinuteBase&lt;/a&gt;. We've been in beta for quite some time, but having paying customers is the major milestone which transforms it from a &quot;project&quot; into an actual business. I've learned a huge amount and thought that now is a good time to look back at our progress.&lt;/p&gt;
 
-&lt;h2&gt;What we did well&lt;/h2&gt;
+&lt;h2&gt;What went well&lt;/h2&gt;
 
 &lt;h3&gt;We based MinuteBase on a problem we actually experienced&lt;/h3&gt;
 
@@ -41,7 +41,7 @@
 
 &lt;p&gt;I'm even using it right now to write up this blog post, you can &lt;a href=&quot;http://livsey.minutebase.com/meetings/ship-ship-hooray&quot;&gt;see it at MinuteBase here&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h2&gt;Lesson learned&lt;/h2&gt;
+&lt;h2&gt;What could be improved&lt;/h2&gt;
 
 &lt;h3&gt;Too long iterations&lt;/h3&gt;
 
