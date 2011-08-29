@@ -4,7 +4,7 @@
   <title>Livsey.org</title>
   <link href="http://livsey.org/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2011-08-29T20:31:14+01:00</updated>
+  <updated>2011-08-29T20:39:24+01:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name>Richard Livsey</name>
@@ -13,7 +13,7 @@
 
   
   <entry>
-    <title>Ship Ship Hooray!</title>
+    <title>Ship Ship Hooray! What I've learned from launching MinuteBase</title>
     <link href="http://livsey.org/blog/2011/08/29/ship-ship-hooray/"/>
     <updated>2011-08-29T17:30:00+01:00</updated>
     <id>http://livsey.org/blog/2011/08/29/ship-ship-hooray</id>
