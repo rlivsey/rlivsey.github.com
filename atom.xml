@@ -4,7 +4,7 @@
   <title>Livsey.org</title>
   <link href="http://livsey.org/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2011-08-29T18:40:02+01:00</updated>
+  <updated>2011-08-29T18:46:30+01:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name>Richard Livsey</name>
@@ -37,17 +37,17 @@
 
 &lt;h3&gt;We dog-fooded right from the beginning&lt;/h3&gt;
 
-&lt;p&gt;Because MinuteBase was built to solve a problem we actually had, we were able to use it right from the earliest stages in the companies we worked for and to collaborate with our clients. Using it every day means we have a better idea of where we need to improve than having to wait for other people to tell us.&lt;/p&gt;
+&lt;p&gt;Because MinuteBase was built to solve a problem we actually had, we were able to use it right from the earliest stages in the companies we worked for and to collaborate with our clients. We also use MinuteBase to build MinuteBase, by writing up all our meetings and discussions, sharing documents and tracking the tasks and actions as we go.&lt;/p&gt;
 
-&lt;p&gt;I'm even using it right now to write up this blog post, you can &lt;a href=&quot;http://livsey.minutebase.com/meetings/ship-ship-hooray&quot;&gt;see it at MinuteBase here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Using it every day means we have a better idea of where we need to improve than having to wait for other people to tell us.  I'm even using it right now to write up this blog post, you can &lt;a href=&quot;http://livsey.minutebase.com/meetings/ship-ship-hooray&quot;&gt;see it at MinuteBase here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2&gt;What could be improved&lt;/h2&gt;
 
-&lt;h3&gt;Too long iterations&lt;/h3&gt;
+&lt;h3&gt;Iterations were too long&lt;/h3&gt;
 
 &lt;p&gt;MinuteBase 2 initially started off as some small improvements to the prototype app, there's nothing there which we couldn't have added in iteratively as we went. Instead we put too many changes and into one release and ended up taking far too long to get changes in-front of our users where we could get feedback.&lt;/p&gt;
 
-&lt;h3&gt;Changed technology stack&lt;/h3&gt;
+&lt;h3&gt;We changed technology stack mid-stream&lt;/h3&gt;
 
 &lt;p&gt;The first version was built using Merb, MySQL, DataMapper and Prototype. Our version 2 is Rails 3, MongoDB, MongoMapper, ElasticSearch and jQuery. Very little code survives from the initial prototype.&lt;/p&gt;
 
@@ -59,7 +59,7 @@
 
 &lt;p&gt;There's no reason why we couldn't have enabled payment 6 months ago, in version 1 of the app. Instead we convinced ourselves that it wasn't ready, and that we'd turn on payment after &quot;this one next feature&quot; or bug fix. Of course because our iterations were too large, that &quot;one next feature&quot; ended up taking months, during which time we could have been bringing in money and proving the business model. We even had people asking how they could pay us!&lt;/p&gt;
 
-&lt;h3&gt;No &quot;business guy&quot;&lt;/h3&gt;
+&lt;h3&gt;We didn't have a &quot;business guy&quot;&lt;/h3&gt;
 
 &lt;p&gt;After going through this process I think the ultimate founding team is a designer, a developer and a business-person. While we're building the product there's no one focused on sales &amp;amp; marketing or just getting out there and talking to people.&lt;/p&gt;
 
@@ -73,7 +73,7 @@
 
 &lt;p&gt;This has to change and we're going to be spending much more time on this in future.&lt;/p&gt;
 
-&lt;h3&gt;Too specific a name&lt;/h3&gt;
+&lt;h3&gt;MinuteBase might be too specific a name&lt;/h3&gt;
 
 &lt;p&gt;Our original focus was to build the best tool to take meeting minutes and we chose our name based on that. Call it scope creep, or pivoting, but the MinuteBase of today does far more than just meeting minutes.&lt;/p&gt;
 
@@ -83,11 +83,7 @@
 
 &lt;h2&gt;In Closing&lt;/h2&gt;
 
-&lt;p&gt;So many of these lessons are things I already knew.&lt;/p&gt;
-
-&lt;p&gt;In my day job managing projects over the years I preached agile development, small iterations, test driven development.&lt;/p&gt;
-
-&lt;p&gt;Even things I didn't have first hand experience in I should have known via talking to others or from &lt;a href=&quot;http://news.ycombinator.com&quot;&gt;Hacker News&lt;/a&gt; over the years.&lt;/p&gt;
+&lt;p&gt;So many of these lessons are things should have already known. In my day job managing projects over the years I preached agile development, small iterations, test driven development. Even things I didn't have first hand experience in I should have known via talking to others or from &lt;a href=&quot;http://news.ycombinator.com&quot;&gt;Hacker News&lt;/a&gt; over the years.&lt;/p&gt;
 
 &lt;p&gt;For some reason when you're building it for yourself and don't have anyone to report to these things go out of the window.&lt;/p&gt;
 
