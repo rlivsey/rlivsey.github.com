@@ -4,13 +4,143 @@
   <title>Livsey.org</title>
   <link href="http://livsey.org/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2011-08-29T20:39:24+01:00</updated>
+  <updated>2012-02-23T14:24:26+00:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name>Richard Livsey</name>
     
   </author>
 
+  
+  <entry>
+    <title>Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port</title>
+    <link href="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/"/>
+    <updated>2012-02-23T13:38:00+00:00</updated>
+    <id>http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port</id>
+    <content type="html">&lt;p&gt;I'm currently working on a project which has an API backend and a JS frontend which consumes that API.
+Both parts are built with Rails and must be served from the same domain and port because of the &lt;a href=&quot;http://en.wikipedia.org/wiki/Same_origin_policy&quot;&gt;same origin policy&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The API will be served from a sub-directory like so:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;http://example.com - serves the JS app&lt;/li&gt;
+&lt;li&gt;http://example.com/api - serves the API&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;p&gt;It's pretty trivial to set this up with nginx, but developing locally is a bit trickier.
+Running both apps with &lt;code&gt;rails server&lt;/code&gt; will put them on different ports and the JS app won't be able to communicate with the API.&lt;/p&gt;
+
+&lt;p&gt;We could setup a local nginx config on our development machines, but this makes it harder to setup breakpoints in ruby-debug amongst other things.&lt;/p&gt;
+
+&lt;p&gt;Rails apps are just Rack apps, so my first thought was to create a config.ru which mounts both Rails apps:&lt;/p&gt;
+
+&lt;div&gt;&lt;figure role=code&gt;&lt;figcaption&gt;&lt;span&gt;config.ru  &lt;/span&gt;&lt;/figcaption&gt;
+ &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
+&lt;span class='line'&gt;2&lt;/span&gt;
+&lt;span class='line'&gt;3&lt;/span&gt;
+&lt;span class='line'&gt;4&lt;/span&gt;
+&lt;span class='line'&gt;5&lt;/span&gt;
+&lt;span class='line'&gt;6&lt;/span&gt;
+&lt;span class='line'&gt;7&lt;/span&gt;
+&lt;span class='line'&gt;8&lt;/span&gt;
+&lt;span class='line'&gt;9&lt;/span&gt;
+&lt;span class='line'&gt;10&lt;/span&gt;
+&lt;span class='line'&gt;11&lt;/span&gt;
+&lt;span class='line'&gt;12&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expand_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;../api/config/environment&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;bp&quot;&gt;__FILE__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expand_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;../frontend/config/environment&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;bp&quot;&gt;__FILE__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;
+&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Rack&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Builder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;/api&amp;quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;   &lt;span class=&quot;n&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;API&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Application&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;
+&lt;/div&gt;&lt;div class='line'&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;/&amp;quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;   &lt;span class=&quot;n&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Frontend&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Application&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This raises an error saying &lt;code&gt;You cannot have more than one Rails::Application&lt;/code&gt; so that's that idea out the window.&lt;/p&gt;
+
+&lt;p&gt;We could turn the API into a Rails Engine and mount that inside the other app, but we really want these two apps to be completely separate and not have to know about each other outside of the documented API.&lt;/p&gt;
+
+&lt;p&gt;The obvious solution is to use a proxy to let us run each Rails app independently and have the proxy forward requests to each one depending on the URL.&lt;/p&gt;
+
+&lt;p&gt;The simplest thing I could think to setup a proxy server was to use &lt;a href=&quot;https://github.com/ncr/rack-proxy&quot;&gt;Rack::Proxy&lt;/a&gt; and about 5 minutes later I had a working solution:&lt;/p&gt;
+
+&lt;div&gt;&lt;figure role=code&gt;&lt;figcaption&gt;&lt;span&gt;config.ru  &lt;/span&gt;&lt;/figcaption&gt;
+ &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
+&lt;span class='line'&gt;2&lt;/span&gt;
+&lt;span class='line'&gt;3&lt;/span&gt;
+&lt;span class='line'&gt;4&lt;/span&gt;
+&lt;span class='line'&gt;5&lt;/span&gt;
+&lt;span class='line'&gt;6&lt;/span&gt;
+&lt;span class='line'&gt;7&lt;/span&gt;
+&lt;span class='line'&gt;8&lt;/span&gt;
+&lt;span class='line'&gt;9&lt;/span&gt;
+&lt;span class='line'&gt;10&lt;/span&gt;
+&lt;span class='line'&gt;11&lt;/span&gt;
+&lt;span class='line'&gt;12&lt;/span&gt;
+&lt;span class='line'&gt;13&lt;/span&gt;
+&lt;span class='line'&gt;14&lt;/span&gt;
+&lt;span class='line'&gt;15&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;rack-proxy&amp;#39;&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;
+&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AppProxy&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Rack&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Proxy&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;rewrite_env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Rack&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=~&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;%r{^/api}&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;HTTP_HOST&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;localhost:3001&amp;quot;&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;HTTP_HOST&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;localhost:3000&amp;quot;&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/div&gt;&lt;div class='line'&gt;
+&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;AppProxy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;
+&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Pretty simple, we just rewrite the HTTP_HOST depending on whether or not the requested path starts with &quot;/api&quot;.&lt;/p&gt;
+
+&lt;p&gt;Now we fire up the frontend and backend Rails apps on port 3000 and 3001 respectively, run the proxy on another port and point the browser there.&lt;/p&gt;
+
+&lt;p&gt;Using &lt;code&gt;rackup config.ru&lt;/code&gt; worked fine, but when I tried to run the proxy using passenger-standalone I got the following error:&lt;/p&gt;
+
+&lt;div&gt;&lt;figure role=code&gt;&lt;figcaption&gt;&lt;span&gt;$ passenger start -p 9999 &lt;/span&gt;&lt;/figcaption&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
+&lt;span class='line'&gt;2&lt;/span&gt;
+&lt;span class='line'&gt;3&lt;/span&gt;
+&lt;span class='line'&gt;4&lt;/span&gt;
+&lt;span class='line'&gt;5&lt;/span&gt;
+&lt;span class='line'&gt;6&lt;/span&gt;
+&lt;span class='line'&gt;7&lt;/span&gt;
+&lt;span class='line'&gt;8&lt;/span&gt;
+&lt;span class='line'&gt;9&lt;/span&gt;
+&lt;span class='line'&gt;10&lt;/span&gt;
+&lt;span class='line'&gt;11&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class=''&gt;&lt;div class='line'&gt;=============== Phusion Passenger Standalone web server started ===============
+&lt;/div&gt;&lt;div class='line'&gt;PID file: /Users/rlivsey/Sites/multi-rails-experiment/tmp/pids/passenger.9999.pid
+&lt;/div&gt;&lt;div class='line'&gt;Log file: /Users/rlivsey/Sites/multi-rails-experiment/log/passenger.9999.log
+&lt;/div&gt;&lt;div class='line'&gt;Environment: development
+&lt;/div&gt;&lt;div class='line'&gt;Accessible via: http://0.0.0.0:9999/
+&lt;/div&gt;&lt;div class='line'&gt;
+&lt;/div&gt;&lt;div class='line'&gt;You can stop Phusion Passenger Standalone by pressing Ctrl-C.
+&lt;/div&gt;&lt;div class='line'&gt;===============================================================================
+&lt;/div&gt;&lt;div class='line'&gt;2012/02/23 14:11:52 [error] 9691#0: *4 &quot;/Users/rlivsey/Sites/multi-rails-experiment/public/index.html&quot; is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: &quot;HEAD / HTTP/1.1&quot;, host: &quot;0.0.0.0&quot;
+&lt;/div&gt;&lt;div class='line'&gt;2012/02/23 14:12:07 [error] 9691#0: *5 &quot;/Users/rlivsey/Sites/multi-rails-experiment/public/index.html&quot; is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: &quot;GET / HTTP/1.1&quot;, host: &quot;localhost:9999&quot;
+&lt;/div&gt;&lt;div class='line'&gt;2012/02/23 14:12:07 [error] 9691#0: *5 open() &quot;/Users/rlivsey/Sites/multi-rails-experiment/public/favicon.ico&quot; failed (2: No such file or directory), client: 127.0.0.1, server: _, request: &quot;GET /favicon.ico HTTP/1.1&quot;, host: &quot;localhost:9999&quot;&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is because passenger-standalone sets up the nginx config expecting there to be a &lt;code&gt;public&lt;/code&gt; directory, so I just created an empty one and everything worked fine.&lt;/p&gt;
+
+&lt;p&gt;With this setup we can also trivially switch the API host to point to production, letting us develop the frontend against the production API should we want to test the UI with live data.&lt;/p&gt;
+</content>
+  </entry>
   
   <entry>
     <title>Ship Ship Hooray! What I've learned from launching MinuteBase</title>

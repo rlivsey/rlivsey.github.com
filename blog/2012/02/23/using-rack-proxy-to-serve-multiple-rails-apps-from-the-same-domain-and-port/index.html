@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Livsey.org</title>
+  <title>Livsey.org: Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port</title>
   <meta name="author" content="Richard Livsey">
   
 
@@ -16,7 +16,7 @@
 
   
 
-  <link rel="canonical" href="http://livsey.org/index.html"/>
+  <link rel="canonical" href="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/"/>
   <link href="/favicon.png" rel="shortcut icon" />
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -92,15 +92,12 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
-
-
-
-  <article>
-    
+      <div>
+<article class="hentry">
+  
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/">Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port</a></h1>
+      <h1 class="entry-title">Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port</h1>
     
     
       <p class="meta">
@@ -116,7 +113,7 @@
   </header>
 
 
-  <div class="entry-content"><p>I&#8217;m currently working on a project which has an API backend and a JS frontend which consumes that API.
+<div class="entry-content"><p>I&#8217;m currently working on a project which has an API backend and a JS frontend which consumes that API.
 Both parts are built with Rails and must be served from the same domain and port because of the <a href="http://en.wikipedia.org/wiki/Same_origin_policy">same origin policy</a>.</p>
 
 <p>The API will be served from a sub-directory like so:</p>
@@ -239,132 +236,62 @@ Running both apps with <code>rails server</code> will put them on different port
 
 <p>With this setup we can also trivially switch the API host to point to production, letting us develop the frontend against the production API should we want to test the UI with live data.</p>
 </div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Richard Livsey</span></span>
+
+      
+
+
+
+
+<time datetime="2012-02-23 13:38:00 +0000" pubdate  updated >Feb 23<span>rd</span>, 2012</time>
+
+
+
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/" data-via="rlivsey" data-counturl="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/" >Tweet</a>
   
   
-
-
-  </article>
-
-
-  <article>
-    
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/08/29/ship-ship-hooray/">Ship Ship Hooray! What I&#8217;ve Learned From Launching MinuteBase</a></h1>
-    
-    
-      <p class="meta">
-
-
-
-
-<time datetime="2011-08-29 17:30:00 +0100" pubdate  updated >Aug 29<span>th</span>, 2011</time>
-
-
-</p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>It&#8217;s been a few days since we turned on payment and, in my eyes at least, officially shipped <a href="http://minutebase.com">MinuteBase</a>. We&#8217;ve been in beta for quite some time, but having paying customers is the major milestone which transforms it from a &#8220;project&#8221; into an actual business. I&#8217;ve learned a huge amount and thought that now is a good time to look back at our progress.</p>
-
-<h2>What went well</h2>
-
-<h3>We based MinuteBase on a problem we actually experienced</h3>
-
-<p>I&#8217;ve worked on a number of projects over the years which I thought were a good idea, but weren&#8217;t solving a problem that I actually faced. This lead to either solving the wrong problem, or just getting bored once the rush of building something new wore off. Just because you experience a problem doesn&#8217;t necessarily mean that it&#8217;s a viable business, but it certainly helps.</p>
-
-<h3>I had a co-founder</h3>
-
-<p>This has been essential for getting through the inevitable slumps in motivation which occur. It&#8217;s much easier to quit when there&#8217;s no one else involved. We&#8217;ve not always agreed, far from it, but the many hours of discussion and arguments have lead to a much better product.</p>
-
-<p>Having a co-founder with complementary skills is also essential. I&#8217;m a pretty good developer but I&#8217;m never going to be mistaken for a designer. I like to think I have a reasonably good eye, but put me in front of PhotoShop for a year and it&#8217;s unlikely that I&#8217;ll produce anything as beautiful as MinuteBase.</p>
-
-<h3>We launched early</h3>
-
-<p>Our first version wasn&#8217;t quite an MVP, we probably could have launched earlier, but looking back it&#8217;s amazing what features we didn&#8217;t have. Having actual users other than ourselves tell us what they are missing has been fantastic. It also means we&#8217;ve been able to focus on things which are actual problems, instead of imagined &#8220;essential&#8221; features which in the end don&#8217;t matter all that much.</p>
-
-<h3>We dog-fooded right from the beginning</h3>
-
-<p>Because MinuteBase was built to solve a problem we actually had, we were able to use it right from the earliest stages in the companies we worked for and to collaborate with our clients. We also use MinuteBase to build MinuteBase, by writing up all our meetings and discussions, sharing documents and tracking the tasks and actions as we go.</p>
-
-<p>Using it every day means we have a better idea of where we need to improve than having to wait for other people to tell us.  I&#8217;m even using it right now to write up this blog post, you can <a href="http://livsey.minutebase.com/meetings/ship-ship-hooray">see it at MinuteBase here</a>.</p>
-
-<h2>What could be improved</h2>
-
-<h3>Iterations were too long</h3>
-
-<p>MinuteBase 2 initially started off as some small improvements to the prototype app, there&#8217;s nothing there which we couldn&#8217;t have added in iteratively as we went. Instead we put too many changes and into one release and ended up taking far too long to get changes in-front of our users where we could get feedback.</p>
-
-<h3>We changed technology stack mid-stream</h3>
-
-<p>The first version was built using Merb, MySQL, DataMapper and Prototype. Our version 2 is Rails 3, MongoDB, MongoMapper, ElasticSearch and jQuery. Very little code survives from the initial prototype.</p>
-
-<p>This meant that far too much time was spent re-building things which already worked instead of on improvements. It also meant that it took us much longer to get in front of our users as we couldn&#8217;t run both versions side by side sharing the same database.</p>
-
-<p>However, building one to throw away meant that when we were building &#8220;version 2&#8221; we had a much better idea of what worked and what didn&#8217;t. We were able to make more fundamental changes to the way the app worked than if we were iteratively changing the prototype.</p>
-
-<h3>We didn&#8217;t turn on payment early enough</h3>
-
-<p>There&#8217;s no reason why we couldn&#8217;t have enabled payment 6 months ago, in version 1 of the app. Instead we convinced ourselves that it wasn&#8217;t ready, and that we&#8217;d turn on payment after &#8220;this one next feature&#8221; or bug fix. Of course because our iterations were too large, that &#8220;one next feature&#8221; ended up taking months, during which time we could have been bringing in money and proving the business model. We even had people asking how they could pay us!</p>
-
-<h3>We didn&#8217;t have a &#8220;business guy&#8221;</h3>
-
-<p>After going through this process I think the ultimate founding team is a designer, a developer and a business-person. While we&#8217;re building the product there&#8217;s no one focused on sales &amp; marketing or just getting out there and talking to people.</p>
-
-<p>That&#8217;s not to say that we shouldn&#8217;t or couldn&#8217;t be doing more of that side of things ourselves, but it&#8217;s easy to put off going out &amp; talking to people, or drumming up press until after you&#8217;ve &#8220;finished&#8221; building the app. And you never really finish.</p>
-
-<h3>We&#8217;ve been too quiet</h3>
-
-<p>If you look at the <a href="http://blog.minutebase.com">MinuteBase blog</a> or <a href="http://twitter.com/minutebase">Twitter stream</a>, you&#8217;ll see there&#8217;s not a lot there. All the posts are about changes to the app and new features.</p>
-
-<p>We need to get much better at producing original content and linking to interesting material so that the blog itself can work as a marketing channel. As it stands, unless you&#8217;re a MinuteBase user, there&#8217;s not much point subscribing to our blog or following us on Twitter.</p>
-
-<p>This has to change and we&#8217;re going to be spending much more time on this in future.</p>
-
-<h3>MinuteBase might be too specific a name</h3>
-
-<p>Our original focus was to build the best tool to take meeting minutes and we chose our name based on that. Call it scope creep, or pivoting, but the MinuteBase of today does far more than just meeting minutes.</p>
-
-<p>With the introduction of workspaces, MinuteBase has turned into a great project management tool but our name is still focused on one part of the app.</p>
-
-<p>Time will tell how much of a problem this is, but having a more generic name or something focused on meetings instead of minutes could have been a better idea.</p>
-
-<h2>In Closing</h2>
-
-<p>So many of these lessons are things should have already known. In my day job managing projects over the years I preached agile development, small iterations, test driven development. Even things I didn&#8217;t have first hand experience in I should have known via talking to others or from <a href="http://news.ycombinator.com">Hacker News</a> over the years.</p>
-
-<p>For some reason when you&#8217;re building it for yourself and don&#8217;t have anyone to report to these things go out of the window.</p>
-
-<p>This process has made me a much better developer, a much better manager and no matter what happens to MinuteBase I&#8217;ve no doubt that it makes me a far more capable person than I was before.</p>
-
-<p>If you go to meetings, or manage projects, why not give <a href="http://minutebase.com">MinuteBase</a> a try.</p>
+  <g:plusone size="medium"></g:plusone>
+  
 </div>
-  
-  
 
-
-  </article>
-
-<nav role="pagination">
-  <div>
     
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</nav>
+  </footer>
+</article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread"><div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_shortname = 'livsey-org';
-    (function () {
-      var s = document.createElement('script'); s.async = true;
-      s.type = 'text/javascript';
-      s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
-      (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-    }());
+  var disqus_shortname = 'livsey-org';
+  var disqus_identifier = 'http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/';
+  var disqus_url = 'http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/';
+  //var disqus_developer = 1;
+  (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
 </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
+
 <aside role=sidebar>
   
     <section>
@@ -420,6 +347,7 @@ Running both apps with <code>rails server</code> will put them on different port
 
   
 </aside>
+
 
     </div>
   </div>
