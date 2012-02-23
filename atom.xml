@@ -4,7 +4,7 @@
   <title>Livsey.org</title>
   <link href="http://livsey.org/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2012-02-23T15:40:00+00:00</updated>
+  <updated>2012-02-23T15:48:27+00:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name>Richard Livsey</name>
@@ -352,7 +352,7 @@ We're still treating the User as a bucket of methods without giving any real tho
 
 &lt;h2&gt;What should the User care about?&lt;/h2&gt;
 
-&lt;p&gt;All the User class should really care about is persistance - storing and retreiving the attributes from the database.&lt;/p&gt;
+&lt;p&gt;All the User class should really care about is persistence - storing and retreiving the attributes from the database.&lt;/p&gt;
 
 &lt;p&gt;Anything other than that is really outside of its scope, I'd argue that even observers, validation &amp;amp; callbacks don't belong in the model most of the time.&lt;/p&gt;
 
