@@ -205,7 +205,7 @@ class User < ActiveRecord::Base
 
 ## What should the User care about?
 
-All the User class should really care about is persistance - storing and retreiving the attributes from the database.
+All the User class should really care about is persistence - storing and retreiving the attributes from the database.
 
 Anything other than that is really outside of its scope, I'd argue that even observers, validation & callbacks don't belong in the model most of the time.
 
