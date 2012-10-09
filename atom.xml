@@ -1,851 +1,1057 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title>Livsey.org</title>
+  <title><![CDATA[Livsey.org]]></title>
   <link href="http://livsey.org/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2012-02-23T15:48:27+00:00</updated>
+  <updated>2012-10-09T18:32:59+01:00</updated>
   <id>http://livsey.org/</id>
   <author>
-    <name>Richard Livsey</name>
+    <name><![CDATA[Richard Livsey]]></name>
     
   </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
 
   
   <entry>
-    <title>Does your User care about authentication?</title>
+    <title type="html"><![CDATA[Breaking up your routes in Ember.js]]></title>
+    <link href="http://livsey.org/blog/2012/10/09/breaking-up-your-routes-in-ember-dot-js/"/>
+    <updated>2012-10-09T18:01:00+01:00</updated>
+    <id>http://livsey.org/blog/2012/10/09/breaking-up-your-routes-in-ember-dot-js</id>
+    <content type="html"><![CDATA[<p>The router is the core of any <a href="http://emberjs.com">Ember.js</a> application and it can get big, fast.
+Keeping your entire application&#8217;s router in one file is going to lead to madness. Thankfully it&#8217;s quite a simple problem to resolve.</p>
+
+<p>Lets imagine an application with a number of discrete sections - a blog, a list of members and an area to browse uploaded files.
+We have an <code>init.js</code> which sets up the application:</p>
+
+<figure class='code'><figcaption><span>init.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">Router</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">root</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">home</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">blog</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/blog&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">posts</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>        <span class="p">}),</span>
+</span><span class='line'>        <span class="nx">post</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="p">})</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">members</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/members&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">list</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>        <span class="p">}),</span>
+</span><span class='line'>        <span class="nx">member</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span>
+</span><span class='line'>        <span class="p">})</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">files</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/files&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">list</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>        <span class="p">}),</span>
+</span><span class='line'>        <span class="nx">file</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span>
+</span><span class='line'>        <span class="p">})</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Looks pretty straightforward, but that&#8217;s without any outlet management, serializing/deserializing, action handlers etc&#8230;</p>
+
+<p>Breaking this up is pretty simple.
+Anywhere we say <code>Ember.Route.extend</code> we&#8217;re defining an anonymous class,
+so in order to split up the router we can just give the class a name and move it to a file of its own.</p>
+
+<figure class='code'><figcaption><span>routes/homepage.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">HomePageRoutes</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>routes/blog.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">BlogRoutes</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/blog&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">posts</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>    <span class="p">}),</span>
+</span><span class='line'>    <span class="nx">post</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>routes/members.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">MembersRoutes</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/members&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">list</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>    <span class="p">}),</span>
+</span><span class='line'>    <span class="nx">member</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>routes/files.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">FilesRoutes</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/files&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">list</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>    <span class="p">}),</span>
+</span><span class='line'>    <span class="nx">file</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now our main router definition looks like:</p>
+
+<figure class='code'><figcaption><span>init.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">Router</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">root</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">home</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">HomePageRoutes</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">blog</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">BlogRoutes</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">members</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">MembersRoutes</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">files</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FilesRoutes</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Clean, simple and everything in its own place.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Does your User care about authentication?]]></title>
     <link href="http://livsey.org/blog/2012/02/23/should-your-user-care-about-authentication/"/>
     <updated>2012-02-23T14:32:00+00:00</updated>
     <id>http://livsey.org/blog/2012/02/23/should-your-user-care-about-authentication</id>
-    <content type="html">&lt;p&gt;These are my notes from a lightning talk I gave at &lt;a href=&quot;http://lanyrd.com/2012/lrug-february/&quot;&gt;this months LRUG&lt;/a&gt;.&lt;/p&gt;
+    <content type="html"><![CDATA[<p>These are my notes from a lightning talk I gave at <a href="http://lanyrd.com/2012/lrug-february/">this months LRUG</a>.</p>
 
-&lt;p&gt;We've got a Rails app which lets a user login with a username and password, nothing out of the ordinary:&lt;/p&gt;
+<p>We&#8217;ve got a Rails app which lets a user login with a username and password, nothing out of the ordinary:</p>
 
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;span class='line'&gt;16&lt;/span&gt;
-&lt;span class='line'&gt;17&lt;/span&gt;
-&lt;span class='line'&gt;18&lt;/span&gt;
-&lt;span class='line'&gt;19&lt;/span&gt;
-&lt;span class='line'&gt;20&lt;/span&gt;
-&lt;span class='line'&gt;21&lt;/span&gt;
-&lt;span class='line'&gt;22&lt;/span&gt;
-&lt;span class='line'&gt;23&lt;/span&gt;
-&lt;span class='line'&gt;24&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SessionsController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ApplicationController&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate_with_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;redirect_to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;root_url&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;render&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:new&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ActiveRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Base&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate_with_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:authenticate_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;authenticate_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unencrypted_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BCrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;password_digest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unencrypted_password&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;kp&quot;&gt;false&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
-
-
-&lt;p&gt;SessionsController#create tries to find a User with the supplied username and password and then redirects or re-displays the login form.&lt;/p&gt;
-
-&lt;p&gt;A few months go by and we decide to let users login against a number of third party services, using something like &lt;a href=&quot;https://github.com/intridea/omniauth&quot;&gt;OmniAuth&lt;/a&gt;
-to do the actual heavy lifting of communicating with the providers. Our controller and model have bloated a fair bit:&lt;/p&gt;
-
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;span class='line'&gt;16&lt;/span&gt;
-&lt;span class='line'&gt;17&lt;/span&gt;
-&lt;span class='line'&gt;18&lt;/span&gt;
-&lt;span class='line'&gt;19&lt;/span&gt;
-&lt;span class='line'&gt;20&lt;/span&gt;
-&lt;span class='line'&gt;21&lt;/span&gt;
-&lt;span class='line'&gt;22&lt;/span&gt;
-&lt;span class='line'&gt;23&lt;/span&gt;
-&lt;span class='line'&gt;24&lt;/span&gt;
-&lt;span class='line'&gt;25&lt;/span&gt;
-&lt;span class='line'&gt;26&lt;/span&gt;
-&lt;span class='line'&gt;27&lt;/span&gt;
-&lt;span class='line'&gt;28&lt;/span&gt;
-&lt;span class='line'&gt;29&lt;/span&gt;
-&lt;span class='line'&gt;30&lt;/span&gt;
-&lt;span class='line'&gt;31&lt;/span&gt;
-&lt;span class='line'&gt;32&lt;/span&gt;
-&lt;span class='line'&gt;33&lt;/span&gt;
-&lt;span class='line'&gt;34&lt;/span&gt;
-&lt;span class='line'&gt;35&lt;/span&gt;
-&lt;span class='line'&gt;36&lt;/span&gt;
-&lt;span class='line'&gt;37&lt;/span&gt;
-&lt;span class='line'&gt;38&lt;/span&gt;
-&lt;span class='line'&gt;39&lt;/span&gt;
-&lt;span class='line'&gt;40&lt;/span&gt;
-&lt;span class='line'&gt;41&lt;/span&gt;
-&lt;span class='line'&gt;42&lt;/span&gt;
-&lt;span class='line'&gt;43&lt;/span&gt;
-&lt;span class='line'&gt;44&lt;/span&gt;
-&lt;span class='line'&gt;45&lt;/span&gt;
-&lt;span class='line'&gt;46&lt;/span&gt;
-&lt;span class='line'&gt;47&lt;/span&gt;
-&lt;span class='line'&gt;48&lt;/span&gt;
-&lt;span class='line'&gt;49&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SessionsController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ApplicationController&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:facebook_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                              &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate_with_facebook&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                            &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:google_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                              &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate_with_google&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                            &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:twitter_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                              &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate_with_twitter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                            &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:github_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                              &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate_with_github&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                            &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                              &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate_with_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;                            &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;redirect_to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;root_url&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;render&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:new&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ActiveRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Base&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate_with_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:authenticate_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate_with_facebook&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;facebook_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:facebook_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate_with_google&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;google_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:google_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate_with_twitter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;twitter_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:twitter_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate_with_github&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;github_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:github_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;authenticate_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unencrypted_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BCrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;password_digest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unencrypted_password&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;kp&quot;&gt;false&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span><span class="o">.</span>
+</span><span class='line'>      <span class="n">try</span><span class="p">(</span><span class="ss">:authenticate_password</span><span class="p">,</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">password_digest</span><span class="p">)</span> <span class="o">==</span> <span class="n">unencrypted_password</span>
+</span><span class='line'>      <span class="nb">self</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;p&gt;There's not much good to say about that code, but I've seen similar things in plenty of apps over the years. At least we're not doing the db calls directly in the controller.&lt;/p&gt;
+<p>SessionsController#create tries to find a User with the supplied username and password and then redirects or re-displays the login form.</p>
 
-&lt;h2&gt;Single Responsibility Principle&lt;/h2&gt;
+<p>A few months go by and we decide to let users login against a number of third party services, using something like <a href="https://github.com/intridea/omniauth">OmniAuth</a>
+to do the actual heavy lifting of communicating with the providers. Our controller and model have bloated a fair bit:</p>
 
-&lt;p&gt;The &lt;a href=&quot;http://en.wikipedia.org/wiki/Single_responsibility_principle&quot;&gt;Single Responsibility Principle&lt;/a&gt; basically says that an object should be responsible for one thing only.
-Thinking about that another way, we can also say that a single change should only touch one part of the system.&lt;/p&gt;
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span>  <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">else</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">end</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:authenticate_password</span><span class="p">,</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">facebook_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">google_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">twitter_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">github_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">password_digest</span><span class="p">)</span> <span class="o">==</span> <span class="n">unencrypted_password</span>
+</span><span class='line'>      <span class="nb">self</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
-&lt;p&gt;With the code as it stands, if we add or remove an authentication method we've got to change code in both the controller and the model.
-Fixing that is pretty simple, let's just move the logic for deciding which authentication method we're using into the model:&lt;/p&gt;
 
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;span class='line'&gt;16&lt;/span&gt;
-&lt;span class='line'&gt;17&lt;/span&gt;
-&lt;span class='line'&gt;18&lt;/span&gt;
-&lt;span class='line'&gt;19&lt;/span&gt;
-&lt;span class='line'&gt;20&lt;/span&gt;
-&lt;span class='line'&gt;21&lt;/span&gt;
-&lt;span class='line'&gt;22&lt;/span&gt;
-&lt;span class='line'&gt;23&lt;/span&gt;
-&lt;span class='line'&gt;24&lt;/span&gt;
-&lt;span class='line'&gt;25&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SessionsController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ApplicationController&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;redirect_to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;root_url&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;render&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:new&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ActiveRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Base&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:facebook_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;authenticate_with_facebook&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:google_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;authenticate_with_google&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:twitter_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;authenticate_with_twitter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:github_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;authenticate_with_github&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;authenticate_with_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<p>There&#8217;s not much good to say about that code, but I&#8217;ve seen similar things in plenty of apps over the years. At least we&#8217;re not doing the db calls directly in the controller.</p>
+
+<h2>Single Responsibility Principle</h2>
+
+<p>The <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">Single Responsibility Principle</a> basically says that an object should be responsible for one thing only.
+Thinking about that another way, we can also say that a single change should only touch one part of the system.</p>
+
+<p>With the code as it stands, if we add or remove an authentication method we&#8217;ve got to change code in both the controller and the model.
+Fixing that is pretty simple, let&#8217;s just move the logic for deciding which authentication method we&#8217;re using into the model:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;p&gt;All tidy, now if we change how authentication works we only have to make changes in one part of the codebase.&lt;/p&gt;
+<p>All tidy, now if we change how authentication works we only have to make changes in one part of the codebase.</p>
 
-&lt;h2&gt;Skinny controllers, fat models&lt;/h2&gt;
+<h2>Skinny controllers, fat models</h2>
 
-&lt;p&gt;This is basically the &lt;a href=&quot;http://weblog.jamisbuck.org/2006/10/18/skinny-controller-fat-model&quot;&gt;skinny controllers, fat models&lt;/a&gt; principle which encourages moving your business logic out of your controllers and into your models.&lt;/p&gt;
+<p>This is basically the <a href="http://weblog.jamisbuck.org/2006/10/18/skinny-controller-fat-model">skinny controllers, fat models</a> principle which encourages moving your business logic out of your controllers and into your models.</p>
 
-&lt;p&gt;This lets us keep nice clean controllers and views, but we can end up with massively bloated models.
+<p>This lets us keep nice clean controllers and views, but we can end up with massively bloated models.
 What we should aim for is not just skinny controllers, but skinny models too. In fact, we want really want everything to be skinny.
-Lets do some refactoring!&lt;/p&gt;
+Lets do some refactoring!</p>
 
-&lt;h2&gt;When all you have is a hammer...&lt;/h2&gt;
+<h2>When all you have is a hammer&#8230;</h2>
 
-&lt;p&gt;Being a Ruby developer, our first port of call is simply to move out the authentication code into a module,
-using the standard include/extend pattern to bring both class and instance methods along:&lt;/p&gt;
+<p>Being a Ruby developer, our first port of call is simply to move out the authentication code into a module,
+using the standard include/extend pattern to bring both class and instance methods along:</p>
 
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;span class='line'&gt;16&lt;/span&gt;
-&lt;span class='line'&gt;17&lt;/span&gt;
-&lt;span class='line'&gt;18&lt;/span&gt;
-&lt;span class='line'&gt;19&lt;/span&gt;
-&lt;span class='line'&gt;20&lt;/span&gt;
-&lt;span class='line'&gt;21&lt;/span&gt;
-&lt;span class='line'&gt;22&lt;/span&gt;
-&lt;span class='line'&gt;23&lt;/span&gt;
-&lt;span class='line'&gt;24&lt;/span&gt;
-&lt;span class='line'&gt;25&lt;/span&gt;
-&lt;span class='line'&gt;26&lt;/span&gt;
-&lt;span class='line'&gt;27&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ActiveRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Base&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;UserAccess&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;UserAccess&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;included&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;base&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;extend&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ClassMethods&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ClassMethods&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;authenticate_with_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;authenticate_with_facebook&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;authenticate_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unencrypted_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
-
-
-&lt;p&gt;&lt;a href=&quot;http://api.rubyonrails.org/classes/ActiveSupport/Concern.html&quot;&gt;ActiveSupport::Concern&lt;/a&gt; can clean this up a little bit and brings a few other tricks to the table.&lt;/p&gt;
-
-&lt;h2&gt;Have we actually done anything?&lt;/h2&gt;
-
-&lt;p&gt;We've got better organised code and given this concept of &quot;user access&quot; a name by wrapping it up in a module.
-We've also made it easier to test as we can test this module outside of Rails making our tests faster, which is nice.&lt;/p&gt;
-
-&lt;p&gt;In effect all we're doing is cleaning up the source so it's easier to find things, we're not modelling the problem any better.
-We're still treating the User as a bucket of methods without giving any real thought as to where these things belong.&lt;/p&gt;
-
-&lt;p&gt;Over time we include more and more functionality into the one model, hardly a &quot;single responsibility&quot;:&lt;/p&gt;
-
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ActiveRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Base&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;UserAccess&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;NameAccessors&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;LoginAuditing&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;UserSerialising&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;RecencyLogging&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;UserInvites&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;UserAvatar&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;UserPermissions&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Kitchen&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Sink&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserAccess</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">base</span><span class="o">.</span><span class="n">extend</span> <span class="no">ClassMethods</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">ClassMethods</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;h2&gt;What should the User care about?&lt;/h2&gt;
+<p><a href="http://api.rubyonrails.org/classes/ActiveSupport/Concern.html">ActiveSupport::Concern</a> can clean this up a little bit and brings a few other tricks to the table.</p>
 
-&lt;p&gt;All the User class should really care about is persistence - storing and retreiving the attributes from the database.&lt;/p&gt;
+<h2>Have we actually done anything?</h2>
 
-&lt;p&gt;Anything other than that is really outside of its scope, I'd argue that even observers, validation &amp;amp; callbacks don't belong in the model most of the time.&lt;/p&gt;
+<p>We&#8217;ve got better organised code and given this concept of &#8220;user access&#8221; a name by wrapping it up in a module.
+We&#8217;ve also made it easier to test as we can test this module outside of Rails making our tests faster, which is nice.</p>
 
-&lt;p&gt;If we look back at the UserAccess module, it's pretty self contained and would quite happily exist outside of the User model.
-Other than the &lt;code&gt;#authenticate_password&lt;/code&gt; method it's all just class methods which go off and try and find a User.&lt;/p&gt;
+<p>In effect all we&#8217;re doing is cleaning up the source so it&#8217;s easier to find things, we&#8217;re not modelling the problem any better.
+We&#8217;re still treating the User as a bucket of methods without giving any real thought as to where these things belong.</p>
 
-&lt;p&gt;With very few changes we can make this a stand-alone module:&lt;/p&gt;
+<p>Over time we include more and more functionality into the one model, hardly a &#8220;single responsibility&#8221;:</p>
 
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;span class='line'&gt;16&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;UserAccess&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate_with_password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BCrypt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:password_digest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate_with_facebook&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserAccess</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">NameAccessors</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">LoginAuditing</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserSerialising</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">RecencyLogging</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserInvites</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserAvatar</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserPermissions</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">Kitchen</span><span class="o">::</span><span class="no">Sink</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;p&gt;I've inlined the instance method, it could just as easily be another class method which takes the user and password, it doesn't really matter at this point.
-The important thing is that it has allowed us to remove the mixin from the User model, leaving it doing just one thing - handling persistence.&lt;/p&gt;
+<h2>What should the User care about?</h2>
 
-&lt;p&gt;The controller needs changing to point to our new stand-alone module, but that's a trivial change:&lt;/p&gt;
+<p>All the User class should really care about is persistence - storing and retreiving the attributes from the database.</p>
 
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SessionsController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ApplicationController&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;current_user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;UserAccess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;redirect_to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;root_url&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;render&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:new&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<p>Anything other than that is really outside of its scope, I&#8217;d argue that even observers, validation &amp; callbacks don&#8217;t belong in the model most of the time.</p>
 
+<p>If we look back at the UserAccess module, it&#8217;s pretty self contained and would quite happily exist outside of the User model.
+Other than the <code>#authenticate_password</code> method it&#8217;s all just class methods which go off and try and find a User.</p>
 
-&lt;h2&gt;Skinny controller, skinny model, we're done. Right?&lt;/h2&gt;
+<p>With very few changes we can make this a stand-alone module:</p>
 
-&lt;p&gt;So we've got a nice clean model and a nice clean controller, but what about the UserAccess module?
-It's a bit of a mess, but at least it's swept into one self contained part of the system so we can refactor this without affecting anything else.&lt;/p&gt;
-
-&lt;p&gt;Back to the Single Responsibility Principle, lets split up the module into a sub-module per authentication type,
-that way each is nicely self contained and responsible purely for the one authentication scheme:&lt;/p&gt;
-
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;span class='line'&gt;16&lt;/span&gt;
-&lt;span class='line'&gt;17&lt;/span&gt;
-&lt;span class='line'&gt;18&lt;/span&gt;
-&lt;span class='line'&gt;19&lt;/span&gt;
-&lt;span class='line'&gt;20&lt;/span&gt;
-&lt;span class='line'&gt;21&lt;/span&gt;
-&lt;span class='line'&gt;22&lt;/span&gt;
-&lt;span class='line'&gt;23&lt;/span&gt;
-&lt;span class='line'&gt;24&lt;/span&gt;
-&lt;span class='line'&gt;25&lt;/span&gt;
-&lt;span class='line'&gt;26&lt;/span&gt;
-&lt;span class='line'&gt;27&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;UserAccess&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:facebook_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;no&quot;&gt;Facebook&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:google_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;no&quot;&gt;Google&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:twitter_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;no&quot;&gt;Twitter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;elsif&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:github_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;no&quot;&gt;GitHub&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;no&quot;&gt;Password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;FaceBook&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Password&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:password_digest</span><span class="p">))</span> <span class="o">==</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">user</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;p&gt;That's a bit cleaner, but we've still got that nasty &lt;code&gt;.authenticate&lt;/code&gt; method and we're back with the problem that if we add or remove an authentication method we're going to have
-to change code in more than one place. Should the top level &lt;code&gt;UserAccess&lt;/code&gt; module really know about the logic which determines which sub-module to use?&lt;/p&gt;
+<p>I&#8217;ve inlined the instance method, it could just as easily be another class method which takes the user and password, it doesn&#8217;t really matter at this point.
+The important thing is that it has allowed us to remove the mixin from the User model, leaving it doing just one thing - handling persistence.</p>
 
-&lt;h2&gt;Chain of Responsibility&lt;/h2&gt;
+<p>The controller needs changing to point to our new stand-alone module, but that&#8217;s a trivial change:</p>
 
-&lt;p&gt;What we really want to do is move the logic from the &lt;code&gt;.authenticate&lt;/code&gt; method down into the sub-modules.
-This is where something like the &lt;a href=&quot;http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern&quot;&gt;Chain of Responsibility&lt;/a&gt; pattern comes in handy.&lt;/p&gt;
-
-&lt;p&gt;Instead of choosing which authentication type to use up front, we ask each module one at a time whether it can handle the submitted parameters:&lt;/p&gt;
-
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;span class='line'&gt;16&lt;/span&gt;
-&lt;span class='line'&gt;17&lt;/span&gt;
-&lt;span class='line'&gt;18&lt;/span&gt;
-&lt;span class='line'&gt;19&lt;/span&gt;
-&lt;span class='line'&gt;20&lt;/span&gt;
-&lt;span class='line'&gt;21&lt;/span&gt;
-&lt;span class='line'&gt;22&lt;/span&gt;
-&lt;span class='line'&gt;23&lt;/span&gt;
-&lt;span class='line'&gt;24&lt;/span&gt;
-&lt;span class='line'&gt;25&lt;/span&gt;
-&lt;span class='line'&gt;26&lt;/span&gt;
-&lt;span class='line'&gt;27&lt;/span&gt;
-&lt;span class='line'&gt;28&lt;/span&gt;
-&lt;span class='line'&gt;29&lt;/span&gt;
-&lt;span class='line'&gt;30&lt;/span&gt;
-&lt;span class='line'&gt;31&lt;/span&gt;
-&lt;span class='line'&gt;32&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;UserAccess&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;no&quot;&gt;AUTH_TYPES&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;no&quot;&gt;FaceBook&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;no&quot;&gt;Twitter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;no&quot;&gt;GitHub&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;no&quot;&gt;Password&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;no&quot;&gt;AUTH_TYPES&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;detect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;can_handle?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;FaceBook&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;can_handle?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;has_key?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:facebook_id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Password&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;can_handle?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;has_key?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;has_key?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;c1&quot;&gt;# ...&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">UserAccess</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;p&gt;Now we just loop through the authentication modules and find the first one which can handle the parameters we have and then calls authenticate on it.&lt;/p&gt;
+<h2>Skinny controller, skinny model, we&#8217;re done. Right?</h2>
 
-&lt;p&gt;Each module is completely responsible for its logic and if we add or remove an authentication method we only have to change one thing.&lt;/p&gt;
+<p>So we&#8217;ve got a nice clean model and a nice clean controller, but what about the UserAccess module?
+It&#8217;s a bit of a mess, but at least it&#8217;s swept into one self contained part of the system so we can refactor this without affecting anything else.</p>
 
-&lt;p&gt;I'm using an array of types here to loop through, but you could also just loop through the sub-modules of the &lt;code&gt;UserAccess&lt;/code&gt; module.
-You could also get rid of the &lt;code&gt;.can_handle?&lt;/code&gt; method by just calling &lt;code&gt;.authenticate&lt;/code&gt; and returning the User for success, nil for a failure and false if it doesn't handle the params,
-but I prefer to be explicit and having a return nil vs false can lead to much confusion.&lt;/p&gt;
+<p>Back to the Single Responsibility Principle, lets split up the module into a sub-module per authentication type,
+that way each is nicely self contained and responsible purely for the one authentication scheme:</p>
 
-&lt;p&gt;Here's a high level overview of what we've ended up with, skinny controller, skinny model and a skinny set of modules all responsible for one thing only:&lt;/p&gt;
-
-&lt;div&gt;&lt;figure role=code&gt; &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;span class='line'&gt;16&lt;/span&gt;
-&lt;span class='line'&gt;17&lt;/span&gt;
-&lt;span class='line'&gt;18&lt;/span&gt;
-&lt;span class='line'&gt;19&lt;/span&gt;
-&lt;span class='line'&gt;20&lt;/span&gt;
-&lt;span class='line'&gt;21&lt;/span&gt;
-&lt;span class='line'&gt;22&lt;/span&gt;
-&lt;span class='line'&gt;23&lt;/span&gt;
-&lt;span class='line'&gt;24&lt;/span&gt;
-&lt;span class='line'&gt;25&lt;/span&gt;
-&lt;span class='line'&gt;26&lt;/span&gt;
-&lt;span class='line'&gt;27&lt;/span&gt;
-&lt;span class='line'&gt;28&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SessionsController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ApplicationController&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;create&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;no&quot;&gt;UserAccess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;User&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;ActiveRecord&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Base&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;UserAccess&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;authenticate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;FaceBook&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Google&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;GitHub&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Twitter&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Password&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">Facebook</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">Google</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">Twitter</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">GitHub</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="no">Password</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Password</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;p&gt;There's plenty of other approaches to refactoring code like this, but I hope this gives a few ideas beyond &quot;I know, I'll move it into a module&quot;.&lt;/p&gt;
-</content>
+<p>That&#8217;s a bit cleaner, but we&#8217;ve still got that nasty <code>.authenticate</code> method and we&#8217;re back with the problem that if we add or remove an authentication method we&#8217;re going to have
+to change code in more than one place. Should the top level <code>UserAccess</code> module really know about the logic which determines which sub-module to use?</p>
+
+<h2>Chain of Responsibility</h2>
+
+<p>What we really want to do is move the logic from the <code>.authenticate</code> method down into the sub-modules.
+This is where something like the <a href="http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern">Chain of Responsibility</a> pattern comes in handy.</p>
+
+<p>Instead of choosing which authentication type to use up front, we ask each module one at a time whether it can handle the submitted parameters:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="no">AUTH_TYPES</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>    <span class="no">FaceBook</span><span class="p">,</span>
+</span><span class='line'>    <span class="no">Twitter</span><span class="p">,</span>
+</span><span class='line'>    <span class="no">GitHub</span><span class="p">,</span>
+</span><span class='line'>    <span class="no">Password</span>
+</span><span class='line'>  <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">AUTH_TYPES</span><span class="o">.</span><span class="n">detect</span><span class="p">{</span><span class="o">|</span><span class="n">auth</span><span class="o">|</span> <span class="n">auth</span><span class="o">.</span><span class="n">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:authenticate</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:facebook_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Password</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:username</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:password</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we just loop through the authentication modules and find the first one which can handle the parameters we have and then calls authenticate on it.</p>
+
+<p>Each module is completely responsible for its logic and if we add or remove an authentication method we only have to change one thing.</p>
+
+<p>I&#8217;m using an array of types here to loop through, but you could also just loop through the sub-modules of the <code>UserAccess</code> module.
+You could also get rid of the <code>.can_handle?</code> method by just calling <code>.authenticate</code> and returning the User for success, nil for a failure and false if it doesn&#8217;t handle the params,
+but I prefer to be explicit and having a return nil vs false can lead to much confusion.</p>
+
+<p>Here&#8217;s a high level overview of what we&#8217;ve ended up with, skinny controller, skinny model and a skinny set of modules all responsible for one thing only:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="no">UserAccess</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Google</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">GitHub</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Twitter</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Password</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There&#8217;s plenty of other approaches to refactoring code like this, but I hope this gives a few ideas beyond &#8220;I know, I&#8217;ll move it into a module&#8221;.</p>
+]]></content>
   </entry>
   
   <entry>
-    <title>Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port</title>
+    <title type="html"><![CDATA[Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port]]></title>
     <link href="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/"/>
     <updated>2012-02-23T13:38:00+00:00</updated>
     <id>http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port</id>
-    <content type="html">&lt;p&gt;I'm currently working on a project which has an API backend and a JS frontend which consumes that API.
-Both parts are built with Rails and must be served from the same domain and port because of the &lt;a href=&quot;http://en.wikipedia.org/wiki/Same_origin_policy&quot;&gt;same origin policy&lt;/a&gt;.&lt;/p&gt;
+    <content type="html"><![CDATA[<p>I&#8217;m currently working on a project which has an API backend and a JS frontend which consumes that API.
+Both parts are built with Rails and must be served from the same domain and port because of the <a href="http://en.wikipedia.org/wiki/Same_origin_policy">same origin policy</a>.</p>
 
-&lt;p&gt;The API will be served from a sub-directory like so:&lt;/p&gt;
+<p>The API will be served from a sub-directory like so:</p>
 
-&lt;ul&gt;
-&lt;li&gt;http://example.com - serves the JS app&lt;/li&gt;
-&lt;li&gt;http://example.com/api - serves the API&lt;/li&gt;
-&lt;/ul&gt;
-
-
-&lt;p&gt;It's pretty trivial to set this up with nginx, but developing locally is a bit trickier.
-Running both apps with &lt;code&gt;rails server&lt;/code&gt; will put them on different ports and the JS app won't be able to communicate with the API.&lt;/p&gt;
-
-&lt;p&gt;We could setup a local nginx config on our development machines, but this makes it harder to setup breakpoints in ruby-debug amongst other things.&lt;/p&gt;
-
-&lt;p&gt;Rails apps are just Rack apps, so my first thought was to create a config.ru which mounts both Rails apps:&lt;/p&gt;
-
-&lt;div&gt;&lt;figure role=code&gt;&lt;figcaption&gt;&lt;span&gt;config.ru  &lt;/span&gt;&lt;/figcaption&gt;
- &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expand_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;../api/config/environment&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;bp&quot;&gt;__FILE__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expand_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;../frontend/config/environment&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;bp&quot;&gt;__FILE__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Rack&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Builder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;/api&amp;quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;   &lt;span class=&quot;n&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;API&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Application&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt; &lt;span class=&quot;n&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;/&amp;quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;   &lt;span class=&quot;n&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Frontend&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Application&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt; &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<ul>
+<li>http://example.com - serves the JS app</li>
+<li>http://example.com/api - serves the API</li>
+</ul>
 
 
-&lt;p&gt;This raises an error saying &lt;code&gt;You cannot have more than one Rails::Application&lt;/code&gt; so that's that idea out the window.&lt;/p&gt;
+<p>It&#8217;s pretty trivial to set this up with nginx, but developing locally is a bit trickier.
+Running both apps with <code>rails server</code> will put them on different ports and the JS app won&#8217;t be able to communicate with the API.</p>
 
-&lt;p&gt;We could turn the API into a Rails Engine and mount that inside the other app, but we really want these two apps to be completely separate and not have to know about each other outside of the documented API.&lt;/p&gt;
+<p>We could setup a local nginx config on our development machines, but this makes it harder to setup breakpoints in ruby-debug amongst other things.</p>
 
-&lt;p&gt;The obvious solution is to use a proxy to let us run each Rails app independently and have the proxy forward requests to each one depending on the URL.&lt;/p&gt;
+<p>Rails apps are just Rack apps, so my first thought was to create a config.ru which mounts both Rails apps:</p>
 
-&lt;p&gt;The simplest thing I could think to setup a proxy server was to use &lt;a href=&quot;https://github.com/ncr/rack-proxy&quot;&gt;Rack::Proxy&lt;/a&gt; and about 5 minutes later I had a working solution:&lt;/p&gt;
-
-&lt;div&gt;&lt;figure role=code&gt;&lt;figcaption&gt;&lt;span&gt;config.ru  &lt;/span&gt;&lt;/figcaption&gt;
- &lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;span class='line'&gt;12&lt;/span&gt;
-&lt;span class='line'&gt;13&lt;/span&gt;
-&lt;span class='line'&gt;14&lt;/span&gt;
-&lt;span class='line'&gt;15&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class='ruby'&gt;&lt;div class='line'&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;rack-proxy&amp;#39;&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AppProxy&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Rack&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Proxy&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;rewrite_env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Rack&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=~&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;%r{^/api}&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;HTTP_HOST&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;localhost:3001&amp;quot;&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;      &lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;HTTP_HOST&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;localhost:3000&amp;quot;&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;    &lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;&lt;span class=&quot;n&quot;&gt;run&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;AppProxy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;
-&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<figure class='code'><figcaption><span>config.ru  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../api/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../frontend/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">run</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Builder</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span>
+</span><span class='line'> <span class="n">map</span> <span class="s2">&quot;/api&quot;</span> <span class="k">do</span>
+</span><span class='line'>   <span class="n">run</span> <span class="no">API</span><span class="o">::</span><span class="no">Application</span>
+</span><span class='line'> <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'> <span class="n">map</span> <span class="s2">&quot;/&quot;</span> <span class="k">do</span>
+</span><span class='line'>   <span class="n">run</span> <span class="no">Frontend</span><span class="o">::</span><span class="no">Application</span>
+</span><span class='line'> <span class="k">end</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;p&gt;Pretty simple, we just rewrite the HTTP_HOST depending on whether or not the requested path starts with &quot;/api&quot;.&lt;/p&gt;
+<p>This raises an error saying <code>You cannot have more than one Rails::Application</code> so that&#8217;s that idea out the window.</p>
 
-&lt;p&gt;Now we fire up the frontend and backend Rails apps on port 3000 and 3001 respectively, run the proxy on another port and point the browser there.&lt;/p&gt;
+<p>We could turn the API into a Rails Engine and mount that inside the other app, but we really want these two apps to be completely separate and not have to know about each other outside of the documented API.</p>
 
-&lt;p&gt;Using &lt;code&gt;rackup config.ru&lt;/code&gt; worked fine, but when I tried to run the proxy using passenger-standalone I got the following error:&lt;/p&gt;
+<p>The obvious solution is to use a proxy to let us run each Rails app independently and have the proxy forward requests to each one depending on the URL.</p>
 
-&lt;div&gt;&lt;figure role=code&gt;&lt;figcaption&gt;&lt;span&gt;$ passenger start -p 9999 &lt;/span&gt;&lt;/figcaption&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre class=&quot;line-numbers&quot;&gt;&lt;span class='line'&gt;1&lt;/span&gt;
-&lt;span class='line'&gt;2&lt;/span&gt;
-&lt;span class='line'&gt;3&lt;/span&gt;
-&lt;span class='line'&gt;4&lt;/span&gt;
-&lt;span class='line'&gt;5&lt;/span&gt;
-&lt;span class='line'&gt;6&lt;/span&gt;
-&lt;span class='line'&gt;7&lt;/span&gt;
-&lt;span class='line'&gt;8&lt;/span&gt;
-&lt;span class='line'&gt;9&lt;/span&gt;
-&lt;span class='line'&gt;10&lt;/span&gt;
-&lt;span class='line'&gt;11&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class='code' width='100%'&gt;&lt;pre&gt;&lt;code class=''&gt;&lt;div class='line'&gt;=============== Phusion Passenger Standalone web server started ===============
-&lt;/div&gt;&lt;div class='line'&gt;PID file: /Users/rlivsey/Sites/multi-rails-experiment/tmp/pids/passenger.9999.pid
-&lt;/div&gt;&lt;div class='line'&gt;Log file: /Users/rlivsey/Sites/multi-rails-experiment/log/passenger.9999.log
-&lt;/div&gt;&lt;div class='line'&gt;Environment: development
-&lt;/div&gt;&lt;div class='line'&gt;Accessible via: http://0.0.0.0:9999/
-&lt;/div&gt;&lt;div class='line'&gt;
-&lt;/div&gt;&lt;div class='line'&gt;You can stop Phusion Passenger Standalone by pressing Ctrl-C.
-&lt;/div&gt;&lt;div class='line'&gt;===============================================================================
-&lt;/div&gt;&lt;div class='line'&gt;2012/02/23 14:11:52 [error] 9691#0: *4 &quot;/Users/rlivsey/Sites/multi-rails-experiment/public/index.html&quot; is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: &quot;HEAD / HTTP/1.1&quot;, host: &quot;0.0.0.0&quot;
-&lt;/div&gt;&lt;div class='line'&gt;2012/02/23 14:12:07 [error] 9691#0: *5 &quot;/Users/rlivsey/Sites/multi-rails-experiment/public/index.html&quot; is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: &quot;GET / HTTP/1.1&quot;, host: &quot;localhost:9999&quot;
-&lt;/div&gt;&lt;div class='line'&gt;2012/02/23 14:12:07 [error] 9691#0: *5 open() &quot;/Users/rlivsey/Sites/multi-rails-experiment/public/favicon.ico&quot; failed (2: No such file or directory), client: 127.0.0.1, server: _, request: &quot;GET /favicon.ico HTTP/1.1&quot;, host: &quot;localhost:9999&quot;&lt;/div&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/figure&gt;&lt;/div&gt;
+<p>The simplest thing I could think to setup a proxy server was to use <a href="https://github.com/ncr/rack-proxy">Rack::Proxy</a> and about 5 minutes later I had a working solution:</p>
+
+<figure class='code'><figcaption><span>config.ru  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;rack-proxy&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">AppProxy</span> <span class="o">&lt;</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Proxy</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">rewrite_env</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">request</span> <span class="o">=</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Request</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span> <span class="o">=~</span> <span class="sr">%r{^/api}</span>
+</span><span class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3001&quot;</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3000&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">env</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">run</span> <span class="no">AppProxy</span><span class="o">.</span><span class="n">new</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-&lt;p&gt;This is because passenger-standalone sets up the nginx config expecting there to be a &lt;code&gt;public&lt;/code&gt; directory, so I just created an empty one and everything worked fine.&lt;/p&gt;
+<p>Pretty simple, we just rewrite the HTTP_HOST depending on whether or not the requested path starts with &#8220;/api&#8221;.</p>
 
-&lt;p&gt;With this setup we can also trivially switch the API host to point to production, letting us develop the frontend against the production API should we want to test the UI with live data.&lt;/p&gt;
-</content>
+<p>Now we fire up the frontend and backend Rails apps on port 3000 and 3001 respectively, run the proxy on another port and point the browser there.</p>
+
+<p>Using <code>rackup config.ru</code> worked fine, but when I tried to run the proxy using passenger-standalone I got the following error:</p>
+
+<figure class='code'><figcaption><span>$ passenger start -p 9999 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>=============== Phusion Passenger Standalone web server started ===============
+</span><span class='line'>PID file: /Users/rlivsey/Sites/multi-rails-experiment/tmp/pids/passenger.9999.pid
+</span><span class='line'>Log file: /Users/rlivsey/Sites/multi-rails-experiment/log/passenger.9999.log
+</span><span class='line'>Environment: development
+</span><span class='line'>Accessible via: http://0.0.0.0:9999/
+</span><span class='line'>
+</span><span class='line'>You can stop Phusion Passenger Standalone by pressing Ctrl-C.
+</span><span class='line'>===============================================================================
+</span><span class='line'>2012/02/23 14:11:52 [error] 9691#0: *4 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "HEAD / HTTP/1.1", host: "0.0.0.0"
+</span><span class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "localhost:9999"
+</span><span class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 open() "/Users/rlivsey/Sites/multi-rails-experiment/public/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET /favicon.ico HTTP/1.1", host: "localhost:9999"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is because passenger-standalone sets up the nginx config expecting there to be a <code>public</code> directory, so I just created an empty one and everything worked fine.</p>
+
+<p>With this setup we can also trivially switch the API host to point to production, letting us develop the frontend against the production API should we want to test the UI with live data.</p>
+]]></content>
   </entry>
   
   <entry>
-    <title>Ship Ship Hooray! What I've learned from launching MinuteBase</title>
+    <title type="html"><![CDATA[Ship Ship Hooray! What I've learned from launching MinuteBase]]></title>
     <link href="http://livsey.org/blog/2011/08/29/ship-ship-hooray/"/>
     <updated>2011-08-29T17:30:00+01:00</updated>
     <id>http://livsey.org/blog/2011/08/29/ship-ship-hooray</id>
-    <content type="html">&lt;p&gt;It's been a few days since we turned on payment and, in my eyes at least, officially shipped &lt;a href=&quot;http://minutebase.com&quot;&gt;MinuteBase&lt;/a&gt;. We've been in beta for quite some time, but having paying customers is the major milestone which transforms it from a &quot;project&quot; into an actual business. I've learned a huge amount and thought that now is a good time to look back at our progress.&lt;/p&gt;
+    <content type="html"><![CDATA[<p>It&#8217;s been a few days since we turned on payment and, in my eyes at least, officially shipped <a href="http://minutebase.com">MinuteBase</a>. We&#8217;ve been in beta for quite some time, but having paying customers is the major milestone which transforms it from a &#8220;project&#8221; into an actual business. I&#8217;ve learned a huge amount and thought that now is a good time to look back at our progress.</p>
 
-&lt;h2&gt;What went well&lt;/h2&gt;
+<h2>What went well</h2>
 
-&lt;h3&gt;We based MinuteBase on a problem we actually experienced&lt;/h3&gt;
+<h3>We based MinuteBase on a problem we actually experienced</h3>
 
-&lt;p&gt;I've worked on a number of projects over the years which I thought were a good idea, but weren't solving a problem that I actually faced. This lead to either solving the wrong problem, or just getting bored once the rush of building something new wore off. Just because you experience a problem doesn't necessarily mean that it's a viable business, but it certainly helps.&lt;/p&gt;
+<p>I&#8217;ve worked on a number of projects over the years which I thought were a good idea, but weren&#8217;t solving a problem that I actually faced. This lead to either solving the wrong problem, or just getting bored once the rush of building something new wore off. Just because you experience a problem doesn&#8217;t necessarily mean that it&#8217;s a viable business, but it certainly helps.</p>
 
-&lt;h3&gt;I had a co-founder&lt;/h3&gt;
+<h3>I had a co-founder</h3>
 
-&lt;p&gt;This has been essential for getting through the inevitable slumps in motivation which occur. It's much easier to quit when there's no one else involved. We've not always agreed, far from it, but the many hours of discussion and arguments have lead to a much better product.&lt;/p&gt;
+<p>This has been essential for getting through the inevitable slumps in motivation which occur. It&#8217;s much easier to quit when there&#8217;s no one else involved. We&#8217;ve not always agreed, far from it, but the many hours of discussion and arguments have lead to a much better product.</p>
 
-&lt;p&gt;Having a co-founder with complementary skills is also essential. I'm a pretty good developer but I'm never going to be mistaken for a designer. I like to think I have a reasonably good eye, but put me in front of PhotoShop for a year and it's unlikely that I'll produce anything as beautiful as MinuteBase.&lt;/p&gt;
+<p>Having a co-founder with complementary skills is also essential. I&#8217;m a pretty good developer but I&#8217;m never going to be mistaken for a designer. I like to think I have a reasonably good eye, but put me in front of PhotoShop for a year and it&#8217;s unlikely that I&#8217;ll produce anything as beautiful as MinuteBase.</p>
 
-&lt;h3&gt;We launched early&lt;/h3&gt;
+<h3>We launched early</h3>
 
-&lt;p&gt;Our first version wasn't quite an MVP, we probably could have launched earlier, but looking back it's amazing what features we didn't have. Having actual users other than ourselves tell us what they are missing has been fantastic. It also means we've been able to focus on things which are actual problems, instead of imagined &quot;essential&quot; features which in the end don't matter all that much.&lt;/p&gt;
+<p>Our first version wasn&#8217;t quite an MVP, we probably could have launched earlier, but looking back it&#8217;s amazing what features we didn&#8217;t have. Having actual users other than ourselves tell us what they are missing has been fantastic. It also means we&#8217;ve been able to focus on things which are actual problems, instead of imagined &#8220;essential&#8221; features which in the end don&#8217;t matter all that much.</p>
 
-&lt;h3&gt;We dog-fooded right from the beginning&lt;/h3&gt;
+<h3>We dog-fooded right from the beginning</h3>
 
-&lt;p&gt;Because MinuteBase was built to solve a problem we actually had, we were able to use it right from the earliest stages in the companies we worked for and to collaborate with our clients. We also use MinuteBase to build MinuteBase, by writing up all our meetings and discussions, sharing documents and tracking the tasks and actions as we go.&lt;/p&gt;
+<p>Because MinuteBase was built to solve a problem we actually had, we were able to use it right from the earliest stages in the companies we worked for and to collaborate with our clients. We also use MinuteBase to build MinuteBase, by writing up all our meetings and discussions, sharing documents and tracking the tasks and actions as we go.</p>
 
-&lt;p&gt;Using it every day means we have a better idea of where we need to improve than having to wait for other people to tell us.  I'm even using it right now to write up this blog post, you can &lt;a href=&quot;http://livsey.minutebase.com/meetings/ship-ship-hooray&quot;&gt;see it at MinuteBase here&lt;/a&gt;.&lt;/p&gt;
+<p>Using it every day means we have a better idea of where we need to improve than having to wait for other people to tell us.  I&#8217;m even using it right now to write up this blog post, you can <a href="http://livsey.minutebase.com/meetings/ship-ship-hooray">see it at MinuteBase here</a>.</p>
 
-&lt;h2&gt;What could be improved&lt;/h2&gt;
+<h2>What could be improved</h2>
 
-&lt;h3&gt;Iterations were too long&lt;/h3&gt;
+<h3>Iterations were too long</h3>
 
-&lt;p&gt;MinuteBase 2 initially started off as some small improvements to the prototype app, there's nothing there which we couldn't have added in iteratively as we went. Instead we put too many changes and into one release and ended up taking far too long to get changes in-front of our users where we could get feedback.&lt;/p&gt;
+<p>MinuteBase 2 initially started off as some small improvements to the prototype app, there&#8217;s nothing there which we couldn&#8217;t have added in iteratively as we went. Instead we put too many changes and into one release and ended up taking far too long to get changes in-front of our users where we could get feedback.</p>
 
-&lt;h3&gt;We changed technology stack mid-stream&lt;/h3&gt;
+<h3>We changed technology stack mid-stream</h3>
 
-&lt;p&gt;The first version was built using Merb, MySQL, DataMapper and Prototype. Our version 2 is Rails 3, MongoDB, MongoMapper, ElasticSearch and jQuery. Very little code survives from the initial prototype.&lt;/p&gt;
+<p>The first version was built using Merb, MySQL, DataMapper and Prototype. Our version 2 is Rails 3, MongoDB, MongoMapper, ElasticSearch and jQuery. Very little code survives from the initial prototype.</p>
 
-&lt;p&gt;This meant that far too much time was spent re-building things which already worked instead of on improvements. It also meant that it took us much longer to get in front of our users as we couldn't run both versions side by side sharing the same database.&lt;/p&gt;
+<p>This meant that far too much time was spent re-building things which already worked instead of on improvements. It also meant that it took us much longer to get in front of our users as we couldn&#8217;t run both versions side by side sharing the same database.</p>
 
-&lt;p&gt;However, building one to throw away meant that when we were building &quot;version 2&quot; we had a much better idea of what worked and what didn't. We were able to make more fundamental changes to the way the app worked than if we were iteratively changing the prototype.&lt;/p&gt;
+<p>However, building one to throw away meant that when we were building &#8220;version 2&#8221; we had a much better idea of what worked and what didn&#8217;t. We were able to make more fundamental changes to the way the app worked than if we were iteratively changing the prototype.</p>
 
-&lt;h3&gt;We didn't turn on payment early enough&lt;/h3&gt;
+<h3>We didn&#8217;t turn on payment early enough</h3>
 
-&lt;p&gt;There's no reason why we couldn't have enabled payment 6 months ago, in version 1 of the app. Instead we convinced ourselves that it wasn't ready, and that we'd turn on payment after &quot;this one next feature&quot; or bug fix. Of course because our iterations were too large, that &quot;one next feature&quot; ended up taking months, during which time we could have been bringing in money and proving the business model. We even had people asking how they could pay us!&lt;/p&gt;
+<p>There&#8217;s no reason why we couldn&#8217;t have enabled payment 6 months ago, in version 1 of the app. Instead we convinced ourselves that it wasn&#8217;t ready, and that we&#8217;d turn on payment after &#8220;this one next feature&#8221; or bug fix. Of course because our iterations were too large, that &#8220;one next feature&#8221; ended up taking months, during which time we could have been bringing in money and proving the business model. We even had people asking how they could pay us!</p>
 
-&lt;h3&gt;We didn't have a &quot;business guy&quot;&lt;/h3&gt;
+<h3>We didn&#8217;t have a &#8220;business guy&#8221;</h3>
 
-&lt;p&gt;After going through this process I think the ultimate founding team is a designer, a developer and a business-person. While we're building the product there's no one focused on sales &amp;amp; marketing or just getting out there and talking to people.&lt;/p&gt;
+<p>After going through this process I think the ultimate founding team is a designer, a developer and a business-person. While we&#8217;re building the product there&#8217;s no one focused on sales &amp; marketing or just getting out there and talking to people.</p>
 
-&lt;p&gt;That's not to say that we shouldn't or couldn't be doing more of that side of things ourselves, but it's easy to put off going out &amp;amp; talking to people, or drumming up press until after you've &quot;finished&quot; building the app. And you never really finish.&lt;/p&gt;
+<p>That&#8217;s not to say that we shouldn&#8217;t or couldn&#8217;t be doing more of that side of things ourselves, but it&#8217;s easy to put off going out &amp; talking to people, or drumming up press until after you&#8217;ve &#8220;finished&#8221; building the app. And you never really finish.</p>
 
-&lt;h3&gt;We've been too quiet&lt;/h3&gt;
+<h3>We&#8217;ve been too quiet</h3>
 
-&lt;p&gt;If you look at the &lt;a href=&quot;http://blog.minutebase.com&quot;&gt;MinuteBase blog&lt;/a&gt; or &lt;a href=&quot;http://twitter.com/minutebase&quot;&gt;Twitter stream&lt;/a&gt;, you'll see there's not a lot there. All the posts are about changes to the app and new features.&lt;/p&gt;
+<p>If you look at the <a href="http://blog.minutebase.com">MinuteBase blog</a> or <a href="http://twitter.com/minutebase">Twitter stream</a>, you&#8217;ll see there&#8217;s not a lot there. All the posts are about changes to the app and new features.</p>
 
-&lt;p&gt;We need to get much better at producing original content and linking to interesting material so that the blog itself can work as a marketing channel. As it stands, unless you're a MinuteBase user, there's not much point subscribing to our blog or following us on Twitter.&lt;/p&gt;
+<p>We need to get much better at producing original content and linking to interesting material so that the blog itself can work as a marketing channel. As it stands, unless you&#8217;re a MinuteBase user, there&#8217;s not much point subscribing to our blog or following us on Twitter.</p>
 
-&lt;p&gt;This has to change and we're going to be spending much more time on this in future.&lt;/p&gt;
+<p>This has to change and we&#8217;re going to be spending much more time on this in future.</p>
 
-&lt;h3&gt;MinuteBase might be too specific a name&lt;/h3&gt;
+<h3>MinuteBase might be too specific a name</h3>
 
-&lt;p&gt;Our original focus was to build the best tool to take meeting minutes and we chose our name based on that. Call it scope creep, or pivoting, but the MinuteBase of today does far more than just meeting minutes.&lt;/p&gt;
+<p>Our original focus was to build the best tool to take meeting minutes and we chose our name based on that. Call it scope creep, or pivoting, but the MinuteBase of today does far more than just meeting minutes.</p>
 
-&lt;p&gt;With the introduction of workspaces, MinuteBase has turned into a great project management tool but our name is still focused on one part of the app.&lt;/p&gt;
+<p>With the introduction of workspaces, MinuteBase has turned into a great project management tool but our name is still focused on one part of the app.</p>
 
-&lt;p&gt;Time will tell how much of a problem this is, but having a more generic name or something focused on meetings instead of minutes could have been a better idea.&lt;/p&gt;
+<p>Time will tell how much of a problem this is, but having a more generic name or something focused on meetings instead of minutes could have been a better idea.</p>
 
-&lt;h2&gt;In Closing&lt;/h2&gt;
+<h2>In Closing</h2>
 
-&lt;p&gt;So many of these lessons are things should have already known. In my day job managing projects over the years I preached agile development, small iterations, test driven development. Even things I didn't have first hand experience in I should have known via talking to others or from &lt;a href=&quot;http://news.ycombinator.com&quot;&gt;Hacker News&lt;/a&gt; over the years.&lt;/p&gt;
+<p>So many of these lessons are things should have already known. In my day job managing projects over the years I preached agile development, small iterations, test driven development. Even things I didn&#8217;t have first hand experience in I should have known via talking to others or from <a href="http://news.ycombinator.com">Hacker News</a> over the years.</p>
 
-&lt;p&gt;For some reason when you're building it for yourself and don't have anyone to report to these things go out of the window.&lt;/p&gt;
+<p>For some reason when you&#8217;re building it for yourself and don&#8217;t have anyone to report to these things go out of the window.</p>
 
-&lt;p&gt;This process has made me a much better developer, a much better manager and no matter what happens to MinuteBase I've no doubt that it makes me a far more capable person than I was before.&lt;/p&gt;
+<p>This process has made me a much better developer, a much better manager and no matter what happens to MinuteBase I&#8217;ve no doubt that it makes me a far more capable person than I was before.</p>
 
-&lt;p&gt;If you go to meetings, or manage projects, why not give &lt;a href=&quot;http://minutebase.com&quot;&gt;MinuteBase&lt;/a&gt; a try.&lt;/p&gt;
-</content>
+<p>If you go to meetings, or manage projects, why not give <a href="http://minutebase.com">MinuteBase</a> a try.</p>
+]]></content>
   </entry>
   
 </feed>

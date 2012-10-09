@@ -7,6 +7,10 @@
   <meta charset="utf-8">
   <title>Livsey.org</title>
   <meta name="author" content="Richard Livsey">
+
+  
+  <meta name="description" content="The router is the core of any Ember.js application and it can get big, fast.
+Keeping your entire application&#8217;s router in one file is going to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -15,14 +19,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-
-  <link rel="canonical" href="http://livsey.org/index.html"/>
-  <link href="/favicon.png" rel="shortcut icon" />
+  <link rel="canonical" href="http://livsey.org/">
+  <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="http://s3.amazonaws.com/ender-js/jeesh.min.js"></script>
+  <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <link href="/atom.xml" rel="alternate" title="Livsey.org" type="application/atom+xml"/>
+  <link href="/atom.xml" rel="alternate" title="Livsey.org" type="application/atom+xml">
+  <!--Fonts from Google's Web font directory at http://google.com/webfonts -->
+<link href='http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -37,36 +44,10 @@
   </script>
 
 
-  
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
-
-
-  
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-  <!--Fonts from Google's Web font directory at http://google.com/webfonts -->
-<link href='http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
-
 </head>
 
-<body  >
-  <header><hgroup>
+<body   >
+  <header role="banner"><hgroup>
   <h1><a href="/">Livsey.org</a></h1>
   
     <h2>Musings on Technology &amp; Startup Life</h2>
@@ -74,16 +55,18 @@
 </hgroup>
 
 </header>
-  <nav role=navigation><ul role=subscription data-subscription="rss">
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
   <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
   
 </ul>
+  
 <form action="http://google.com/search" method="get">
-  <fieldset role="site-search">
+  <fieldset role="search">
     <input type="hidden" name="q" value="site:livsey.org" />
     <input class="search" type="text" name="q" results="0" placeholder="Search"/>
   </fieldset>
 </form>
+  
 <ul role=main-navigation>
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
@@ -93,25 +76,264 @@
   <div id="main">
     <div id="content">
       <div class="blog-index">
-
-
-
-  <article>
+  
+  
+  
+    <article>
+      
+  <header>
     
+      <h1 class="entry-title"><a href="/blog/2012/10/09/breaking-up-your-routes-in-ember-dot-js/">Breaking Up Your Routes in Ember.js</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-10-09T18:01:00+01:00" pubdate data-updated="true">Oct 9<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The router is the core of any <a href="http://emberjs.com">Ember.js</a> application and it can get big, fast.
+Keeping your entire application&#8217;s router in one file is going to lead to madness. Thankfully it&#8217;s quite a simple problem to resolve.</p>
+
+<p>Lets imagine an application with a number of discrete sections - a blog, a list of members and an area to browse uploaded files.
+We have an <code>init.js</code> which sets up the application:</p>
+
+<figure class='code'><figcaption><span>init.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">Router</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">root</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">home</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">blog</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/blog&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">posts</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>        <span class="p">}),</span>
+</span><span class='line'>        <span class="nx">post</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="p">})</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">members</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/members&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">list</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>        <span class="p">}),</span>
+</span><span class='line'>        <span class="nx">member</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span>
+</span><span class='line'>        <span class="p">})</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">files</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/files&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">list</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>        <span class="p">}),</span>
+</span><span class='line'>        <span class="nx">file</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>          <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span>
+</span><span class='line'>        <span class="p">})</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Looks pretty straightforward, but that&#8217;s without any outlet management, serializing/deserializing, action handlers etc&#8230;</p>
+
+<p>Breaking this up is pretty simple.
+Anywhere we say <code>Ember.Route.extend</code> we&#8217;re defining an anonymous class,
+so in order to split up the router we can just give the class a name and move it to a file of its own.</p>
+
+<figure class='code'><figcaption><span>routes/homepage.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">HomePageRoutes</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>routes/blog.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">BlogRoutes</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/blog&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">posts</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>    <span class="p">}),</span>
+</span><span class='line'>    <span class="nx">post</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>routes/members.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">MembersRoutes</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/members&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">list</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>    <span class="p">}),</span>
+</span><span class='line'>    <span class="nx">member</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>routes/files.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">FilesRoutes</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/files&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">list</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>    <span class="p">}),</span>
+</span><span class='line'>    <span class="nx">file</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/:id&quot;</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now our main router definition looks like:</p>
+
+<figure class='code'><figcaption><span>init.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">Router</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">root</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">home</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">HomePageRoutes</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">blog</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">BlogRoutes</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">members</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">MembersRoutes</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">files</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FilesRoutes</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Clean, simple and everything in its own place.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
   <header>
     
       <h1 class="entry-title"><a href="/blog/2012/02/23/should-your-user-care-about-authentication/">Does Your User Care About Authentication?</a></h1>
     
     
       <p class="meta">
+        
 
 
 
 
-<time datetime="2012-02-23 14:32:00 +0000" pubdate  updated >Feb 23<span>rd</span>, 2012</time>
 
 
-</p>
+
+
+  
+
+
+<time datetime="2012-02-23T14:32:00+00:00" pubdate data-updated="true">Feb 23<span>rd</span>, 2012</time>
+        
+      </p>
     
   </header>
 
@@ -120,55 +342,55 @@
 
 <p>We&#8217;ve got a Rails app which lets a user login with a username and password, nothing out of the ordinary:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-<span class='line'>16</span>
-<span class='line'>17</span>
-<span class='line'>18</span>
-<span class='line'>19</span>
-<span class='line'>20</span>
-<span class='line'>21</span>
-<span class='line'>22</span>
-<span class='line'>23</span>
-<span class='line'>24</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">create</span>
-</div><div class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="n">render</span> <span class="ss">:new</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span><span class="o">.</span>
-</div><div class='line'>      <span class="n">try</span><span class="p">(</span><span class="ss">:authenticate_password</span><span class="p">,</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">password_digest</span><span class="p">)</span> <span class="o">==</span> <span class="n">unencrypted_password</span>
-</div><div class='line'>      <span class="nb">self</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="kp">false</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span><span class="o">.</span>
+</span><span class='line'>      <span class="n">try</span><span class="p">(</span><span class="ss">:authenticate_password</span><span class="p">,</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">password_digest</span><span class="p">)</span> <span class="o">==</span> <span class="n">unencrypted_password</span>
+</span><span class='line'>      <span class="nb">self</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>SessionsController#create tries to find a User with the supplied username and password and then redirects or re-displays the login form.</p>
@@ -176,105 +398,105 @@
 <p>A few months go by and we decide to let users login against a number of third party services, using something like <a href="https://github.com/intridea/omniauth">OmniAuth</a>
 to do the actual heavy lifting of communicating with the providers. Our controller and model have bloated a fair bit:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-<span class='line'>16</span>
-<span class='line'>17</span>
-<span class='line'>18</span>
-<span class='line'>19</span>
-<span class='line'>20</span>
-<span class='line'>21</span>
-<span class='line'>22</span>
-<span class='line'>23</span>
-<span class='line'>24</span>
-<span class='line'>25</span>
-<span class='line'>26</span>
-<span class='line'>27</span>
-<span class='line'>28</span>
-<span class='line'>29</span>
-<span class='line'>30</span>
-<span class='line'>31</span>
-<span class='line'>32</span>
-<span class='line'>33</span>
-<span class='line'>34</span>
-<span class='line'>35</span>
-<span class='line'>36</span>
-<span class='line'>37</span>
-<span class='line'>38</span>
-<span class='line'>39</span>
-<span class='line'>40</span>
-<span class='line'>41</span>
-<span class='line'>42</span>
-<span class='line'>43</span>
-<span class='line'>44</span>
-<span class='line'>45</span>
-<span class='line'>46</span>
-<span class='line'>47</span>
-<span class='line'>48</span>
-<span class='line'>49</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">create</span>
-</div><div class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span>  <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
-</div><div class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
-</div><div class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
-</div><div class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
-</div><div class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>                            <span class="k">else</span>
-</div><div class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>                            <span class="k">end</span>
-</div><div class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="n">render</span> <span class="ss">:new</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:authenticate_password</span><span class="p">,</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">facebook_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">google_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">twitter_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">github_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">password_digest</span><span class="p">)</span> <span class="o">==</span> <span class="n">unencrypted_password</span>
-</div><div class='line'>      <span class="nb">self</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="kp">false</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span>  <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">else</span>
+</span><span class='line'>                              <span class="no">User</span><span class="o">.</span><span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>                            <span class="k">end</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:authenticate_password</span><span class="p">,</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">facebook_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">google_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">twitter_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">first</span><span class="p">(</span><span class="n">github_id</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">password_digest</span><span class="p">)</span> <span class="o">==</span> <span class="n">unencrypted_password</span>
+</span><span class='line'>      <span class="nb">self</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>There&#8217;s not much good to say about that code, but I&#8217;ve seen similar things in plenty of apps over the years. At least we&#8217;re not doing the db calls directly in the controller.</p>
@@ -287,57 +509,57 @@ Thinking about that another way, we can also say that a single change should onl
 <p>With the code as it stands, if we add or remove an authentication method we&#8217;ve got to change code in both the controller and the model.
 Fixing that is pretty simple, let&#8217;s just move the logic for deciding which authentication method we&#8217;re using into the model:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-<span class='line'>16</span>
-<span class='line'>17</span>
-<span class='line'>18</span>
-<span class='line'>19</span>
-<span class='line'>20</span>
-<span class='line'>21</span>
-<span class='line'>22</span>
-<span class='line'>23</span>
-<span class='line'>24</span>
-<span class='line'>25</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">create</span>
-</div><div class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="n">render</span> <span class="ss">:new</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
-</div><div class='line'>      <span class="n">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
-</div><div class='line'>      <span class="n">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
-</div><div class='line'>      <span class="n">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
-</div><div class='line'>      <span class="n">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">authenticate_with_google</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">authenticate_with_twitter</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">authenticate_with_github</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>All tidy, now if we change how authentication works we only have to make changes in one part of the codebase.</p>
@@ -355,61 +577,61 @@ Lets do some refactoring!</p>
 <p>Being a Ruby developer, our first port of call is simply to move out the authentication code into a module,
 using the standard include/extend pattern to bring both class and instance methods along:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-<span class='line'>16</span>
-<span class='line'>17</span>
-<span class='line'>18</span>
-<span class='line'>19</span>
-<span class='line'>20</span>
-<span class='line'>21</span>
-<span class='line'>22</span>
-<span class='line'>23</span>
-<span class='line'>24</span>
-<span class='line'>25</span>
-<span class='line'>26</span>
-<span class='line'>27</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">UserAccess</span>
-</div><div class='line'><span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">base</span><span class="o">.</span><span class="n">extend</span> <span class="no">ClassMethods</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">ClassMethods</span>
-</div><div class='line'>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="c1"># ...</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>    <span class="k">def</span> <span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="c1"># ...</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>    <span class="k">def</span> <span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="c1"># ...</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
-</div><div class='line'>    <span class="c1"># ...</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserAccess</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">base</span><span class="o">.</span><span class="n">extend</span> <span class="no">ClassMethods</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">ClassMethods</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">authenticate_password</span><span class="p">(</span><span class="n">unencrypted_password</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p><a href="http://api.rubyonrails.org/classes/ActiveSupport/Concern.html">ActiveSupport::Concern</a> can clean this up a little bit and brings a few other tricks to the table.</p>
@@ -424,29 +646,29 @@ We&#8217;re still treating the User as a bucket of methods without giving any re
 
 <p>Over time we include more and more functionality into the one model, hardly a &#8220;single responsibility&#8221;:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">UserAccess</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">NameAccessors</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">LoginAuditing</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">UserSerialising</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">RecencyLogging</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">UserInvites</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">UserAvatar</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">UserPermissions</span>
-</div><div class='line'>  <span class="kp">include</span> <span class="no">Kitchen</span><span class="o">::</span><span class="no">Sink</span>
-</div><div class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserAccess</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">NameAccessors</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">LoginAuditing</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserSerialising</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">RecencyLogging</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserInvites</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserAvatar</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">UserPermissions</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">Kitchen</span><span class="o">::</span><span class="no">Sink</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <h2>What should the User care about?</h2>
@@ -460,39 +682,39 @@ Other than the <code>#authenticate_password</code> method it&#8217;s all just cl
 
 <p>With very few changes we can make this a stand-alone module:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-<span class='line'>16</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="c1"># ...</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:password_digest</span><span class="p">))</span> <span class="o">==</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span>
-</div><div class='line'>      <span class="n">user</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="c1"># ...</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_password</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="n">params</span><span class="o">[</span><span class="ss">:username</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="no">BCrypt</span><span class="o">::</span><span class="no">Password</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:password_digest</span><span class="p">))</span> <span class="o">==</span> <span class="n">params</span><span class="o">[</span><span class="ss">:password</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">user</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate_with_facebook</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>I&#8217;ve inlined the instance method, it could just as easily be another class method which takes the user and password, it doesn&#8217;t really matter at this point.
@@ -500,25 +722,25 @@ The important thing is that it has allowed us to remove the mixin from the User 
 
 <p>The controller needs changing to point to our new stand-alone module, but that&#8217;s a trivial change:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">create</span>
-</div><div class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">UserAccess</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="n">render</span> <span class="ss">:new</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="no">UserAccess</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">root_url</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <h2>Skinny controller, skinny model, we&#8217;re done. Right?</h2>
@@ -529,61 +751,61 @@ It&#8217;s a bit of a mess, but at least it&#8217;s swept into one self containe
 <p>Back to the Single Responsibility Principle, lets split up the module into a sub-module per authentication type,
 that way each is nicely self contained and responsible purely for the one authentication scheme:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-<span class='line'>16</span>
-<span class='line'>17</span>
-<span class='line'>18</span>
-<span class='line'>19</span>
-<span class='line'>20</span>
-<span class='line'>21</span>
-<span class='line'>22</span>
-<span class='line'>23</span>
-<span class='line'>24</span>
-<span class='line'>25</span>
-<span class='line'>26</span>
-<span class='line'>27</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
-</div><div class='line'>      <span class="no">Facebook</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
-</div><div class='line'>      <span class="no">Google</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
-</div><div class='line'>      <span class="no">Twitter</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
-</div><div class='line'>      <span class="no">GitHub</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="no">Password</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
-</div><div class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="c1"># ...</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">Password</span>
-</div><div class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="c1"># ...</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">params</span><span class="o">[</span><span class="ss">:facebook_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">Facebook</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:google_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">Google</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:twitter_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">Twitter</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">params</span><span class="o">[</span><span class="ss">:github_id</span><span class="o">]</span>
+</span><span class='line'>      <span class="no">GitHub</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="no">Password</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Password</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>That&#8217;s a bit cleaner, but we&#8217;ve still got that nasty <code>.authenticate</code> method and we&#8217;re back with the problem that if we add or remove an authentication method we&#8217;re going to have
@@ -596,71 +818,71 @@ This is where something like the <a href="http://en.wikipedia.org/wiki/Chain-of-
 
 <p>Instead of choosing which authentication type to use up front, we ask each module one at a time whether it can handle the submitted parameters:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-<span class='line'>16</span>
-<span class='line'>17</span>
-<span class='line'>18</span>
-<span class='line'>19</span>
-<span class='line'>20</span>
-<span class='line'>21</span>
-<span class='line'>22</span>
-<span class='line'>23</span>
-<span class='line'>24</span>
-<span class='line'>25</span>
-<span class='line'>26</span>
-<span class='line'>27</span>
-<span class='line'>28</span>
-<span class='line'>29</span>
-<span class='line'>30</span>
-<span class='line'>31</span>
-<span class='line'>32</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
-</div><div class='line'>  <span class="no">AUTH_TYPES</span> <span class="o">=</span> <span class="o">[</span>
-</div><div class='line'>    <span class="no">FaceBook</span><span class="p">,</span>
-</div><div class='line'>    <span class="no">Twitter</span><span class="p">,</span>
-</div><div class='line'>    <span class="no">GitHub</span><span class="p">,</span>
-</div><div class='line'>    <span class="no">Password</span>
-</div><div class='line'>  <span class="o">]</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>    <span class="no">AUTH_TYPES</span><span class="o">.</span><span class="n">detect</span><span class="p">{</span><span class="o">|</span><span class="n">auth</span><span class="o">|</span> <span class="n">auth</span><span class="o">.</span><span class="n">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:authenticate</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
-</div><div class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:facebook_id</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="c1"># ...</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">Password</span>
-</div><div class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:username</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:password</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>      <span class="c1"># ...</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="no">AUTH_TYPES</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>    <span class="no">FaceBook</span><span class="p">,</span>
+</span><span class='line'>    <span class="no">Twitter</span><span class="p">,</span>
+</span><span class='line'>    <span class="no">GitHub</span><span class="p">,</span>
+</span><span class='line'>    <span class="no">Password</span>
+</span><span class='line'>  <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">AUTH_TYPES</span><span class="o">.</span><span class="n">detect</span><span class="p">{</span><span class="o">|</span><span class="n">auth</span><span class="o">|</span> <span class="n">auth</span><span class="o">.</span><span class="n">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:authenticate</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:facebook_id</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Password</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">can_handle?</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:username</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">params</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="ss">:password</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># ...</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Now we just loop through the authentication modules and find the first one which can handle the parameters we have and then calls authenticate on it.</p>
@@ -673,63 +895,63 @@ but I prefer to be explicit and having a return nil vs false can lead to much co
 
 <p>Here&#8217;s a high level overview of what we&#8217;ve ended up with, skinny controller, skinny model and a skinny set of modules all responsible for one thing only:</p>
 
-<div><figure role=code> <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-<span class='line'>16</span>
-<span class='line'>17</span>
-<span class='line'>18</span>
-<span class='line'>19</span>
-<span class='line'>20</span>
-<span class='line'>21</span>
-<span class='line'>22</span>
-<span class='line'>23</span>
-<span class='line'>24</span>
-<span class='line'>25</span>
-<span class='line'>26</span>
-<span class='line'>27</span>
-<span class='line'>28</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">create</span>
-</div><div class='line'>    <span class="no">UserAccess</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</div><div class='line'><span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">Google</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">GitHub</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">Twitter</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'>  <span class="k">module</span> <span class="nn">Password</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">SessionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="no">UserAccess</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">module</span> <span class="nn">UserAccess</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">authenticate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">FaceBook</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Google</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">GitHub</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Twitter</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">module</span> <span class="nn">Password</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>There&#8217;s plenty of other approaches to refactoring code like this, but I hope this gives a few ideas beyond &#8220;I know, I&#8217;ll move it into a module&#8221;.</p>
@@ -738,25 +960,32 @@ but I prefer to be explicit and having a return nil vs false can lead to much co
   
 
 
-  </article>
-
-
-  <article>
-    
+    </article>
+  
+  
+    <article>
+      
   <header>
     
       <h1 class="entry-title"><a href="/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/">Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port</a></h1>
     
     
       <p class="meta">
+        
 
 
 
 
-<time datetime="2012-02-23 13:38:00 +0000" pubdate  updated >Feb 23<span>rd</span>, 2012</time>
 
 
-</p>
+
+
+  
+
+
+<time datetime="2012-02-23T13:38:00+00:00" pubdate data-updated="true">Feb 23<span>rd</span>, 2012</time>
+        
+      </p>
     
   </header>
 
@@ -779,32 +1008,32 @@ Running both apps with <code>rails server</code> will put them on different port
 
 <p>Rails apps are just Rack apps, so my first thought was to create a config.ru which mounts both Rails apps:</p>
 
-<div><figure role=code><figcaption><span>config.ru  </span></figcaption>
- <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../api/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
-</div><div class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../frontend/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
-</div><div class='line'>
-</div><div class='line'><span class="n">run</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Builder</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span>
-</div><div class='line'> <span class="n">map</span> <span class="s2">&quot;/api&quot;</span> <span class="k">do</span>
-</div><div class='line'>   <span class="n">run</span> <span class="no">API</span><span class="o">::</span><span class="no">Application</span>
-</div><div class='line'> <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'> <span class="n">map</span> <span class="s2">&quot;/&quot;</span> <span class="k">do</span>
-</div><div class='line'>   <span class="n">run</span> <span class="no">Frontend</span><span class="o">::</span><span class="no">Application</span>
-</div><div class='line'> <span class="k">end</span>
-</div><div class='line'><span class="p">}</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'><figcaption><span>config.ru  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../api/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../frontend/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">run</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Builder</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span>
+</span><span class='line'> <span class="n">map</span> <span class="s2">&quot;/api&quot;</span> <span class="k">do</span>
+</span><span class='line'>   <span class="n">run</span> <span class="no">API</span><span class="o">::</span><span class="no">Application</span>
+</span><span class='line'> <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'> <span class="n">map</span> <span class="s2">&quot;/&quot;</span> <span class="k">do</span>
+</span><span class='line'>   <span class="n">run</span> <span class="no">Frontend</span><span class="o">::</span><span class="no">Application</span>
+</span><span class='line'> <span class="k">end</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>This raises an error saying <code>You cannot have more than one Rails::Application</code> so that&#8217;s that idea out the window.</p>
@@ -815,38 +1044,38 @@ Running both apps with <code>rails server</code> will put them on different port
 
 <p>The simplest thing I could think to setup a proxy server was to use <a href="https://github.com/ncr/rack-proxy">Rack::Proxy</a> and about 5 minutes later I had a working solution:</p>
 
-<div><figure role=code><figcaption><span>config.ru  </span></figcaption>
- <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="nb">require</span> <span class="s1">&#39;rack-proxy&#39;</span>
-</div><div class='line'>
-</div><div class='line'><span class="k">class</span> <span class="nc">AppProxy</span> <span class="o">&lt;</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Proxy</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">rewrite_env</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">request</span> <span class="o">=</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Request</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span> <span class="o">=~</span> <span class="sr">%r{^/api}</span>
-</div><div class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3001&quot;</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3000&quot;</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>    <span class="n">env</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'><span class="n">run</span> <span class="no">AppProxy</span><span class="o">.</span><span class="n">new</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'><figcaption><span>config.ru  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;rack-proxy&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">AppProxy</span> <span class="o">&lt;</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Proxy</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">rewrite_env</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">request</span> <span class="o">=</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Request</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span> <span class="o">=~</span> <span class="sr">%r{^/api}</span>
+</span><span class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3001&quot;</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3000&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">env</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">run</span> <span class="no">AppProxy</span><span class="o">.</span><span class="n">new</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Pretty simple, we just rewrite the HTTP_HOST depending on whether or not the requested path starts with &#8220;/api&#8221;.</p>
@@ -855,29 +1084,29 @@ Running both apps with <code>rails server</code> will put them on different port
 
 <p>Using <code>rackup config.ru</code> worked fine, but when I tried to run the proxy using passenger-standalone I got the following error:</p>
 
-<div><figure role=code><figcaption><span>$ passenger start -p 9999 </span></figcaption>
-<div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-</pre></td><td class='code' width='100%'><pre><code class=''><div class='line'>=============== Phusion Passenger Standalone web server started ===============
-</div><div class='line'>PID file: /Users/rlivsey/Sites/multi-rails-experiment/tmp/pids/passenger.9999.pid
-</div><div class='line'>Log file: /Users/rlivsey/Sites/multi-rails-experiment/log/passenger.9999.log
-</div><div class='line'>Environment: development
-</div><div class='line'>Accessible via: http://0.0.0.0:9999/
-</div><div class='line'>
-</div><div class='line'>You can stop Phusion Passenger Standalone by pressing Ctrl-C.
-</div><div class='line'>===============================================================================
-</div><div class='line'>2012/02/23 14:11:52 [error] 9691#0: *4 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "HEAD / HTTP/1.1", host: "0.0.0.0"
-</div><div class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "localhost:9999"
-</div><div class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 open() "/Users/rlivsey/Sites/multi-rails-experiment/public/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET /favicon.ico HTTP/1.1", host: "localhost:9999"</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'><figcaption><span>$ passenger start -p 9999 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>=============== Phusion Passenger Standalone web server started ===============
+</span><span class='line'>PID file: /Users/rlivsey/Sites/multi-rails-experiment/tmp/pids/passenger.9999.pid
+</span><span class='line'>Log file: /Users/rlivsey/Sites/multi-rails-experiment/log/passenger.9999.log
+</span><span class='line'>Environment: development
+</span><span class='line'>Accessible via: http://0.0.0.0:9999/
+</span><span class='line'>
+</span><span class='line'>You can stop Phusion Passenger Standalone by pressing Ctrl-C.
+</span><span class='line'>===============================================================================
+</span><span class='line'>2012/02/23 14:11:52 [error] 9691#0: *4 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "HEAD / HTTP/1.1", host: "0.0.0.0"
+</span><span class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "localhost:9999"
+</span><span class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 open() "/Users/rlivsey/Sites/multi-rails-experiment/public/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET /favicon.ico HTTP/1.1", host: "localhost:9999"</span></code></pre></td></tr></table></div></figure>
 
 
 <p>This is because passenger-standalone sets up the nginx config expecting there to be a <code>public</code> directory, so I just created an empty one and everything worked fine.</p>
@@ -888,25 +1117,32 @@ Running both apps with <code>rails server</code> will put them on different port
   
 
 
-  </article>
-
-
-  <article>
-    
+    </article>
+  
+  
+    <article>
+      
   <header>
     
       <h1 class="entry-title"><a href="/blog/2011/08/29/ship-ship-hooray/">Ship Ship Hooray! What I&#8217;ve Learned From Launching MinuteBase</a></h1>
     
     
       <p class="meta">
+        
 
 
 
 
-<time datetime="2011-08-29 17:30:00 +0100" pubdate  updated >Aug 29<span>th</span>, 2011</time>
 
 
-</p>
+
+
+  
+
+
+<time datetime="2011-08-29T17:30:00+01:00" pubdate data-updated="true">Aug 29<span>th</span>, 2011</time>
+        
+      </p>
     
   </header>
 
@@ -989,28 +1225,15 @@ Running both apps with <code>rails server</code> will put them on different port
   
 
 
-  </article>
-
-<nav role="pagination">
-  <div>
+    </article>
+  
+  <div class="pagination">
     
     <a href="/blog/archives">Blog Archives</a>
     
   </div>
-</nav>
-
-<script type="text/javascript">
-    var disqus_shortname = 'livsey-org';
-    (function () {
-      var s = document.createElement('script'); s.async = true;
-      s.type = 'text/javascript';
-      s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
-      (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-    }());
-</script>
-
 </div>
-<aside role=sidebar>
+<aside class="sidebar">
   
     <section>
   <h1>By Richard Livsey</h1>
@@ -1034,6 +1257,10 @@ Running both apps with <code>rails server</code> will put them on different port
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/10/09/breaking-up-your-routes-in-ember-dot-js/">Breaking up your routes in Ember.js</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2012/02/23/should-your-user-care-about-authentication/">Does your User care about authentication?</a>
@@ -1062,7 +1289,7 @@ Running both apps with <code>rails server</code> will put them on different port
   </script>
   <script src="/javascripts/twitter.js" type="text/javascript"> </script>
   
-    <a href="http://twitter.com/rlivsey" class="twitter-follow-button" data-width="208px" data-show-count="false">Follow @rlivsey</a>
+    <a href="http://twitter.com/rlivsey" class="twitter-follow-button" data-show-count="false">Follow @rlivsey</a>
   
 </section>
 
@@ -1072,11 +1299,46 @@ Running both apps with <code>rails server</code> will put them on different port
 
     </div>
   </div>
-  <footer><p>
+  <footer role="contentinfo"><p>
   Copyright &copy; 2012 - Richard Livsey -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
 </footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'livsey-org';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
 </body>
 </html>

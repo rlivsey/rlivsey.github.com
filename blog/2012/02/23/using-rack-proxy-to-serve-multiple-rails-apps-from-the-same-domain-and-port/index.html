@@ -5,8 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Livsey.org: Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port</title>
+  <title>Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port - Livsey.org</title>
   <meta name="author" content="Richard Livsey">
+
+  
+  <meta name="description" content="I&#8217;m currently working on a project which has an API backend and a JS frontend which consumes that API.
+Both parts are built with Rails and must &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -15,14 +19,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-
-  <link rel="canonical" href="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/"/>
-  <link href="/favicon.png" rel="shortcut icon" />
+  <link rel="canonical" href="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/">
+  <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="http://s3.amazonaws.com/ender-js/jeesh.min.js"></script>
+  <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <link href="/atom.xml" rel="alternate" title="Livsey.org" type="application/atom+xml"/>
+  <link href="/atom.xml" rel="alternate" title="Livsey.org" type="application/atom+xml">
+  <!--Fonts from Google's Web font directory at http://google.com/webfonts -->
+<link href='http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
@@ -37,36 +44,10 @@
   </script>
 
 
-  
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
-
-
-  
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-  <!--Fonts from Google's Web font directory at http://google.com/webfonts -->
-<link href='http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
-
 </head>
 
-<body  >
-  <header><hgroup>
+<body   >
+  <header role="banner"><hgroup>
   <h1><a href="/">Livsey.org</a></h1>
   
     <h2>Musings on Technology &amp; Startup Life</h2>
@@ -74,16 +55,18 @@
 </hgroup>
 
 </header>
-  <nav role=navigation><ul role=subscription data-subscription="rss">
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
   <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
   
 </ul>
+  
 <form action="http://google.com/search" method="get">
-  <fieldset role="site-search">
+  <fieldset role="search">
     <input type="hidden" name="q" value="site:livsey.org" />
     <input class="search" type="text" name="q" results="0" placeholder="Search"/>
   </fieldset>
 </form>
+  
 <ul role=main-navigation>
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
@@ -93,7 +76,7 @@
   <div id="main">
     <div id="content">
       <div>
-<article class="hentry">
+<article class="hentry" role="article">
   
   <header>
     
@@ -101,14 +84,21 @@
     
     
       <p class="meta">
+        
 
 
 
 
-<time datetime="2012-02-23 13:38:00 +0000" pubdate  updated >Feb 23<span>rd</span>, 2012</time>
 
 
-</p>
+
+
+  
+
+
+<time datetime="2012-02-23T13:38:00+00:00" pubdate data-updated="true">Feb 23<span>rd</span>, 2012</time>
+        
+      </p>
     
   </header>
 
@@ -131,32 +121,32 @@ Running both apps with <code>rails server</code> will put them on different port
 
 <p>Rails apps are just Rack apps, so my first thought was to create a config.ru which mounts both Rails apps:</p>
 
-<div><figure role=code><figcaption><span>config.ru  </span></figcaption>
- <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../api/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
-</div><div class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../frontend/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
-</div><div class='line'>
-</div><div class='line'><span class="n">run</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Builder</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span>
-</div><div class='line'> <span class="n">map</span> <span class="s2">&quot;/api&quot;</span> <span class="k">do</span>
-</div><div class='line'>   <span class="n">run</span> <span class="no">API</span><span class="o">::</span><span class="no">Application</span>
-</div><div class='line'> <span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'> <span class="n">map</span> <span class="s2">&quot;/&quot;</span> <span class="k">do</span>
-</div><div class='line'>   <span class="n">run</span> <span class="no">Frontend</span><span class="o">::</span><span class="no">Application</span>
-</div><div class='line'> <span class="k">end</span>
-</div><div class='line'><span class="p">}</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'><figcaption><span>config.ru  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../api/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class='line'><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../frontend/config/environment&#39;</span><span class="p">,</span>  <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">run</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Builder</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span>
+</span><span class='line'> <span class="n">map</span> <span class="s2">&quot;/api&quot;</span> <span class="k">do</span>
+</span><span class='line'>   <span class="n">run</span> <span class="no">API</span><span class="o">::</span><span class="no">Application</span>
+</span><span class='line'> <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'> <span class="n">map</span> <span class="s2">&quot;/&quot;</span> <span class="k">do</span>
+</span><span class='line'>   <span class="n">run</span> <span class="no">Frontend</span><span class="o">::</span><span class="no">Application</span>
+</span><span class='line'> <span class="k">end</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>This raises an error saying <code>You cannot have more than one Rails::Application</code> so that&#8217;s that idea out the window.</p>
@@ -167,38 +157,38 @@ Running both apps with <code>rails server</code> will put them on different port
 
 <p>The simplest thing I could think to setup a proxy server was to use <a href="https://github.com/ncr/rack-proxy">Rack::Proxy</a> and about 5 minutes later I had a working solution:</p>
 
-<div><figure role=code><figcaption><span>config.ru  </span></figcaption>
- <div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-<span class='line'>12</span>
-<span class='line'>13</span>
-<span class='line'>14</span>
-<span class='line'>15</span>
-</pre></td><td class='code' width='100%'><pre><code class='ruby'><div class='line'><span class="nb">require</span> <span class="s1">&#39;rack-proxy&#39;</span>
-</div><div class='line'>
-</div><div class='line'><span class="k">class</span> <span class="nc">AppProxy</span> <span class="o">&lt;</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Proxy</span>
-</div><div class='line'>  <span class="k">def</span> <span class="nf">rewrite_env</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-</div><div class='line'>    <span class="n">request</span> <span class="o">=</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Request</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-</div><div class='line'>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span> <span class="o">=~</span> <span class="sr">%r{^/api}</span>
-</div><div class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3001&quot;</span>
-</div><div class='line'>    <span class="k">else</span>
-</div><div class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3000&quot;</span>
-</div><div class='line'>    <span class="k">end</span>
-</div><div class='line'>    <span class="n">env</span>
-</div><div class='line'>  <span class="k">end</span>
-</div><div class='line'><span class="k">end</span>
-</div><div class='line'>
-</div><div class='line'><span class="n">run</span> <span class="no">AppProxy</span><span class="o">.</span><span class="n">new</span>
-</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'><figcaption><span>config.ru  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;rack-proxy&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">AppProxy</span> <span class="o">&lt;</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Proxy</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">rewrite_env</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">request</span> <span class="o">=</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Request</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span> <span class="o">=~</span> <span class="sr">%r{^/api}</span>
+</span><span class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3001&quot;</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">env</span><span class="o">[</span><span class="s2">&quot;HTTP_HOST&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;localhost:3000&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">env</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">run</span> <span class="no">AppProxy</span><span class="o">.</span><span class="n">new</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Pretty simple, we just rewrite the HTTP_HOST depending on whether or not the requested path starts with &#8220;/api&#8221;.</p>
@@ -207,29 +197,29 @@ Running both apps with <code>rails server</code> will put them on different port
 
 <p>Using <code>rackup config.ru</code> worked fine, but when I tried to run the proxy using passenger-standalone I got the following error:</p>
 
-<div><figure role=code><figcaption><span>$ passenger start -p 9999 </span></figcaption>
-<div class="highlight"><table cellpadding="0" cellspacing="0"><tr><td class="gutter"><pre class="line-numbers"><span class='line'>1</span>
-<span class='line'>2</span>
-<span class='line'>3</span>
-<span class='line'>4</span>
-<span class='line'>5</span>
-<span class='line'>6</span>
-<span class='line'>7</span>
-<span class='line'>8</span>
-<span class='line'>9</span>
-<span class='line'>10</span>
-<span class='line'>11</span>
-</pre></td><td class='code' width='100%'><pre><code class=''><div class='line'>=============== Phusion Passenger Standalone web server started ===============
-</div><div class='line'>PID file: /Users/rlivsey/Sites/multi-rails-experiment/tmp/pids/passenger.9999.pid
-</div><div class='line'>Log file: /Users/rlivsey/Sites/multi-rails-experiment/log/passenger.9999.log
-</div><div class='line'>Environment: development
-</div><div class='line'>Accessible via: http://0.0.0.0:9999/
-</div><div class='line'>
-</div><div class='line'>You can stop Phusion Passenger Standalone by pressing Ctrl-C.
-</div><div class='line'>===============================================================================
-</div><div class='line'>2012/02/23 14:11:52 [error] 9691#0: *4 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "HEAD / HTTP/1.1", host: "0.0.0.0"
-</div><div class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "localhost:9999"
-</div><div class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 open() "/Users/rlivsey/Sites/multi-rails-experiment/public/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET /favicon.ico HTTP/1.1", host: "localhost:9999"</div></code></pre></td></tr></table></div></figure></div>
+<figure class='code'><figcaption><span>$ passenger start -p 9999 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>=============== Phusion Passenger Standalone web server started ===============
+</span><span class='line'>PID file: /Users/rlivsey/Sites/multi-rails-experiment/tmp/pids/passenger.9999.pid
+</span><span class='line'>Log file: /Users/rlivsey/Sites/multi-rails-experiment/log/passenger.9999.log
+</span><span class='line'>Environment: development
+</span><span class='line'>Accessible via: http://0.0.0.0:9999/
+</span><span class='line'>
+</span><span class='line'>You can stop Phusion Passenger Standalone by pressing Ctrl-C.
+</span><span class='line'>===============================================================================
+</span><span class='line'>2012/02/23 14:11:52 [error] 9691#0: *4 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "HEAD / HTTP/1.1", host: "0.0.0.0"
+</span><span class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 "/Users/rlivsey/Sites/multi-rails-experiment/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "localhost:9999"
+</span><span class='line'>2012/02/23 14:12:07 [error] 9691#0: *5 open() "/Users/rlivsey/Sites/multi-rails-experiment/public/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET /favicon.ico HTTP/1.1", host: "localhost:9999"</span></code></pre></td></tr></table></div></figure>
 
 
 <p>This is because passenger-standalone sets up the nginx config expecting there to be a <code>public</code> directory, so I just created an empty one and everything worked fine.</p>
@@ -250,11 +240,21 @@ Running both apps with <code>rails server</code> will put them on different port
 
 
 
-<time datetime="2012-02-23 13:38:00 +0000" pubdate  updated >Feb 23<span>rd</span>, 2012</time>
 
 
 
+
+  
+
+
+<time datetime="2012-02-23T13:38:00+00:00" pubdate data-updated="true">Feb 23<span>rd</span>, 2012</time>
       
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ruby/'>ruby</a>
+  
+</span>
 
 
     </p>
@@ -264,35 +264,30 @@ Running both apps with <code>rails server</code> will put them on different port
   <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/" data-via="rlivsey" data-counturl="http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/" >Tweet</a>
   
   
-  <g:plusone size="medium"></g:plusone>
   
 </div>
 
     
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/08/29/ship-ship-hooray/" title="Previous Post: Ship Ship Hooray! What I've learned from launching MinuteBase">&laquo; Ship Ship Hooray! What I've learned from launching MinuteBase</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/02/23/should-your-user-care-about-authentication/" title="Next Post: Does your User care about authentication?">Does your User care about authentication? &raquo;</a>
+      
+    </p>
   </footer>
 </article>
 
   <section>
     <h1>Comments</h1>
-    <div id="disqus_thread"><div id="disqus_thread"></div>
-<script type="text/javascript">
-  var disqus_shortname = 'livsey-org';
-  var disqus_identifier = 'http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/';
-  var disqus_url = 'http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/';
-  //var disqus_developer = 1;
-  (function() {
-    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-    dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
   </section>
 
 </div>
 
-<aside role=sidebar>
+<aside class="sidebar">
   
     <section>
   <h1>By Richard Livsey</h1>
@@ -318,6 +313,10 @@ Running both apps with <code>rails server</code> will put them on different port
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2012/10/09/breaking-up-your-routes-in-ember-dot-js/">Breaking up your routes in Ember.js</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2012/02/23/should-your-user-care-about-authentication/">Does your User care about authentication?</a>
       </li>
     
@@ -326,7 +325,7 @@ Running both apps with <code>rails server</code> will put them on different port
       </li>
     
       <li class="post">
-        <a href="/blog/2011/08/29/ship-ship-hooray/">Ship Ship Hooray! What I&#8217;ve learned from launching MinuteBase</a>
+        <a href="/blog/2011/08/29/ship-ship-hooray/">Ship Ship Hooray! What I've learned from launching MinuteBase</a>
       </li>
     
   </ul>
@@ -335,7 +334,7 @@ Running both apps with <code>rails server</code> will put them on different port
 <section>
   <h1>Latest Tweets</h1>
   <ul id="tweets">
-    <li class="loading">Status updating&#8230;</li>
+    <li class="loading">Status updating...</li>
   </ul>
   <script type="text/javascript">
     $.domReady(function(){
@@ -344,7 +343,7 @@ Running both apps with <code>rails server</code> will put them on different port
   </script>
   <script src="/javascripts/twitter.js" type="text/javascript"> </script>
   
-    <a href="http://twitter.com/rlivsey" class="twitter-follow-button" data-width="208px" data-show-count="false">Follow @rlivsey</a>
+    <a href="http://twitter.com/rlivsey" class="twitter-follow-button" data-show-count="false">Follow @rlivsey</a>
   
 </section>
 
@@ -355,11 +354,49 @@ Running both apps with <code>rails server</code> will put them on different port
 
     </div>
   </div>
-  <footer><p>
+  <footer role="contentinfo"><p>
   Copyright &copy; 2012 - Richard Livsey -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
 </footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'livsey-org';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/';
+        var disqus_url = 'http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
 </body>
 </html>
