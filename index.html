@@ -303,6 +303,48 @@ so in order to split up the router we can just give the class a name and move it
 
 
 <p>Clean, simple and everything in its own place.</p>
+
+<p><strong>Update</strong>: As <a href="http://livsey.org/blog/2012/10/09/breaking-up-your-routes-in-ember-dot-js/#comment-677694778">Jo Liss points out</a>,
+you can specify the base route when you assemble the router as opposed to hard coding it in each section. I really like this, feels very similar to
+how <a href="http://api.rubyonrails.org/classes/Rails/Engine.html">engines are mounted in Rails</a>.</p>
+
+<figure class='code'><figcaption><span>init.js  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">Router</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">root</span><span class="o">:</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">home</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">HomePageRoutes</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/&quot;</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">blog</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">BlogRoutes</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/blog&quot;</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">members</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">MembersRoutes</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/members&quot;</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>      <span class="nx">files</span><span class="o">:</span> <span class="nx">App</span><span class="p">.</span><span class="nx">FilesRoutes</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">route</span><span class="o">:</span> <span class="s2">&quot;/files&quot;</span>
+</span><span class='line'>      <span class="p">}),</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'>  <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
 </div>
   
   
