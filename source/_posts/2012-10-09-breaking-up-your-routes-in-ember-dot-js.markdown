@@ -115,3 +115,28 @@ Now our main router definition looks like:
 {% endcodeblock %}
 
 Clean, simple and everything in its own place.
+
+**Update**: As [Jo Liss points out](http://livsey.org/blog/2012/10/09/breaking-up-your-routes-in-ember-dot-js/#comment-677694778),
+you can specify the base route when you assemble the router as opposed to hard coding it in each section. I really like this, feels very similar to
+how [engines are mounted in Rails](http://api.rubyonrails.org/classes/Rails/Engine.html).
+
+{% codeblock init.js lang:javascript %}
+  App.Router = Ember.Router.extend({
+    root: Ember.Route.extend({
+      home: App.HomePageRoutes.extend({
+        route: "/"
+      }),
+      blog: App.BlogRoutes.extend({
+        route: "/blog"
+      }),
+      members: App.MembersRoutes.extend({
+        route: "/members"
+      }),
+      files: App.FilesRoutes.extend({
+        route: "/files"
+      }),
+    })
+  })
+{% endcodeblock %}
+
+
