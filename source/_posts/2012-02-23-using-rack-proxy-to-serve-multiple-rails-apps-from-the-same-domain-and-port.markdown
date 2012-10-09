@@ -3,7 +3,7 @@ layout: post
 title: "Using Rack::Proxy to Serve Multiple Rails Apps From the Same Domain &amp; Port"
 date: 2012-02-23 13:38
 comments: true
-categories:
+categories: ruby
 ---
 
 I'm currently working on a project which has an API backend and a JS frontend which consumes that API.

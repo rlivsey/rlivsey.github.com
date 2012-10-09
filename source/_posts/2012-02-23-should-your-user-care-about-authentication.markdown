@@ -3,7 +3,7 @@ layout: post
 title: "Does your User care about authentication?"
 date: 2012-02-23 14:32
 comments: true
-categories:
+categories: ruby
 ---
 
 These are my notes from a lightning talk I gave at [this months LRUG](http://lanyrd.com/2012/lrug-february/).
