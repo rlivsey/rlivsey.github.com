@@ -4,7 +4,7 @@
   <title><![CDATA[Category: javascript | Livsey.org]]></title>
   <link href="http://livsey.org/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2012-10-16T16:36:36+01:00</updated>
+  <updated>2012-10-16T16:43:56+01:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name><![CDATA[Richard Livsey]]></name>
@@ -180,7 +180,7 @@ determines whether to display the content or not.</p>
 </span><span class='line'><span class="p">})</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<p>We can verify this by faking out the magic:</p>
+<p>Lets fake out the magic and see what happens:</p>
 
 <p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>can-helper.js </span></figcaption>
  <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -202,10 +202,58 @@ determines whether to display the content or not.</p>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">can</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
 </span><span class='line'>  <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">}.</span><span class="nx">property</span><span class="p">()</span>
 </span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">Ember</span><span class="p">.</span><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">helpers</span><span class="p">.</span><span class="nx">boundIf</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">permission</span><span class="p">,</span> <span class="s2">&quot;can&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Hmm, that leaves the content as hidden. It seems that it's not calling the <code>can</code> on our permission.</p>
+
+<p>If we look back at <code>boundIf</code> then we can see that it's looking up the context on the options and only falls back to <code>this</code> if
+there's not one set:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>ember-handlebars/lib/helpers/binding.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>  <span class="kd">var</span> <span class="nx">context</span> <span class="o">=</span> <span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">contexts</span> <span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">||</span> <span class="k">this</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>We can get around this by nuking the contexts on the options we pass through to <code>boundIf</code>.
+(I'm not sure if this will cause issues, but it worked for me... YMMV and all that).</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>can-helper.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">registerHelper</span><span class="p">(</span><span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">permissionName</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">options</span><span class="p">){</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">permission</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">can</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'><span class="p">}.</span><span class="nx">property</span><span class="p">()</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="c1">// wipe out contexts so boundIf uses &lt;code&gt;this&lt;/code&gt; (the permission) as the context</span>
+</span><span class='line'>  <span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">Ember</span><span class="p">.</span><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">helpers</span><span class="p">.</span><span class="nx">boundIf</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">permission</span><span class="p">,</span> <span class="s2">&quot;can&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
 </span><span class='line'><span class="p">})</span>
