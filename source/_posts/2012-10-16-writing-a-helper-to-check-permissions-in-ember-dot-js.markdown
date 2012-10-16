@@ -91,7 +91,7 @@ Handlebars.registerHelper('can', function(permissionName, property, options){
 })
 {% endcodeblock %}
 
-We can verify this by faking out the magic:
+Lets fake out the magic and see what happens:
 
 {% codeblock can-helper.js %}
 Handlebars.registerHelper('can', function(permissionName, property, options){
@@ -99,8 +99,36 @@ Handlebars.registerHelper('can', function(permissionName, property, options){
   var permission = Ember.Object.create({
     can: function(){
       return true;
-    }
+    }.property()
   });
+
+  Ember.Handlebars.helpers.boundIf.call(permission, "can", options)
+})
+{% endcodeblock %}
+
+Hmm, that leaves the content as hidden. It seems that it's not calling the `can` on our permission.
+
+If we look back at `boundIf` then we can see that it's looking up the context on the options and only falls back to `this` if
+there's not one set:
+
+{% codeblock ember-handlebars/lib/helpers/binding.js %}
+  var context = (fn.contexts && fn.contexts[0]) || this;
+{% endcodeblock %}
+
+We can get around this by nuking the contexts on the options we pass through to `boundIf`.
+(I'm not sure if this will cause issues, but it worked for me... YMMV and all that).
+
+{% codeblock can-helper.js %}
+Handlebars.registerHelper('can', function(permissionName, property, options){
+
+  var permission = Ember.Object.create({
+    can: function(){
+      return true;
+    }.property()
+  });
+
+  // wipe out contexts so boundIf uses `this` (the permission) as the context
+  options.contexts = null;
 
   Ember.Handlebars.helpers.boundIf.call(permission, "can", options)
 })
