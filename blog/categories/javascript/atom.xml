@@ -4,7 +4,7 @@
   <title><![CDATA[Category: javascript | Livsey.org]]></title>
   <link href="http://livsey.org/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2012-10-09T21:20:53+01:00</updated>
+  <updated>2012-10-16T16:36:36+01:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name><![CDATA[Richard Livsey]]></name>
@@ -12,6 +12,428 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Writing a helper to check permissions in Ember.js]]></title>
+    <link href="http://livsey.org/blog/2012/10/16/writing-a-helper-to-check-permissions-in-ember-dot-js/"/>
+    <updated>2012-10-16T14:41:00+01:00</updated>
+    <id>http://livsey.org/blog/2012/10/16/writing-a-helper-to-check-permissions-in-ember-dot-js</id>
+    <content type="html"><![CDATA[<h2>Background</h2>
+
+<p>Lets say we're writing a blog which allows users to login, but only certain users can write and edit articles.
+We want to display add/edit buttons based on permissions, so how do we do that?</p>
+
+<p>For simple permissions, this is quite trivial. For example, to check if the current logged in user is an
+administrator we can just do something like:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>blog/index.handlebars  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>  {{#if App.currentUser.isAdmin}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>button {{action newBlogPost}}<span class="ni">&amp;gt;</span>New Post<span class="ni">&amp;lt;</span>/button<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>  {{/if}}
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This only works if we have a single property and we can't pass any arguments, which means the following won't work:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>blog/index.handlebars  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>  {{#if App.currentUser.canEditPost post }}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>button {{action editPost post}}<span class="ni">&amp;gt;</span>edit<span class="ni">&amp;lt;</span>/button<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>  {{/if}}
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>Research</h2>
+
+<p>What we want is a version of <code>if</code> which knows about permissions and will let us pass in arguments so that we can end up with something like this:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>blog/index.handlebars  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>  {{#can createPost}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>button {{action newBlogPost}}<span class="ni">&amp;gt;</span>New Post<span class="ni">&amp;lt;</span>/button<span class="ni">&amp;gt;</span>
+</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>  {{else}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span>You don&#39;t have permission to post
+</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>  {{/can}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>  {{#each post in controller}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>a {{action viewPost post href=true}}<span class="ni">&amp;gt;</span>{{post.title}}<span class="ni">&amp;lt;</span>/a<span class="ni">&amp;gt;</span>
+</span><span class='line'>{{#can editPost post}}
+</span><span class='line'>  <span class="ni">&amp;lt;</span>button {{action editPost post}}<span class="ni">&amp;gt;</span>Edit<span class="ni">&amp;lt;</span>/button<span class="ni">&amp;gt;</span>
+</span><span class='line'>{{/can}}
+</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;p&gt;</span>  {{/each}}
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Let's take a look at <a href="https://github.com/emberjs/ember.js/blob/bbb6f5f0bd7d9f6f1951fc2306f09b4be3fcfb7d/packages/ember-handlebars/lib/helpers/binding.js#L217">from the source</a>
+and see how <code>if</code> works:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>ember-handlebars/lib/helpers/binding.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">EmberHandlebars</span><span class="p">.</span><span class="nx">registerHelper</span><span class="p">(</span><span class="s1">&#39;if&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">Ember</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="s2">&quot;You must pass exactly one argument to the if helper&quot;</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">2</span><span class="p">);</span>
+</span><span class='line'>  <span class="nx">Ember</span><span class="p">.</span><span class="nx">assert</span><span class="p">(</span><span class="s2">&quot;You must pass a block to the if helper&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">fn</span> <span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">fn</span> <span class="o">!==</span> <span class="nx">Handlebars</span><span class="p">.</span><span class="nx">VM</span><span class="p">.</span><span class="nx">noop</span><span class="p">);</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="k">return</span> <span class="nx">helpers</span><span class="p">.</span><span class="nx">boundIf</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This just does some sanity checking and hands off to <a href="https://github.com/emberjs/ember.js/blob/bbb6f5f0bd7d9f6f1951fc2306f09b4be3fcfb7d/packages/ember-handlebars/lib/helpers/binding.js#L151"><code>boundIf</code></a>:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>ember-handlebars/lib/helpers/binding.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">EmberHandlebars</span><span class="p">.</span><span class="nx">registerHelper</span><span class="p">(</span><span class="s1">&#39;boundIf&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">property</span><span class="p">,</span> <span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">context</span> <span class="o">=</span> <span class="p">(</span><span class="nx">fn</span><span class="p">.</span><span class="nx">contexts</span> <span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">||</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">func</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="k">if</span> <span class="p">(</span><span class="nx">Ember</span><span class="p">.</span><span class="nx">typeOf</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="o">===</span> <span class="s1">&#39;array&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">get</span><span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="s1">&#39;length&#39;</span><span class="p">)</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">!!</span><span class="nx">result</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">};</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="k">return</span> <span class="nx">bind</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">fn</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">func</span><span class="p">,</span> <span class="nx">func</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This in turn calls <code>bind</code> which handles setting up all the observers and re-rendering when properties change. The result of the <code>func</code> it builds
+determines whether to display the content or not.</p>
+
+<p>It looks like if we create a helper which calls <code>boundIf</code> with some property to observe on an object, it will take care of the rest for us.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>can-helper.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">registerHelper</span><span class="p">(</span><span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">permissionName</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">options</span><span class="p">){</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="c1">// do magic here&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">Ember</span><span class="p">.</span><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">helpers</span><span class="p">.</span><span class="nx">boundIf</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">someObject</span><span class="p">,</span> <span class="s2">&quot;someProperty&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>We can verify this by faking out the magic:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>can-helper.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">registerHelper</span><span class="p">(</span><span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">permissionName</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">options</span><span class="p">){</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">permission</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">can</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">Ember</span><span class="p">.</span><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">helpers</span><span class="p">.</span><span class="nx">boundIf</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">permission</span><span class="p">,</span> <span class="s2">&quot;can&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>If you twiddle the result of <code>can</code> from <code>true</code> to <code>false</code> then we see our content disappear and re-appear, success!</p>
+
+<h2>Implementation</h2>
+
+<p>Lets define a class to represent our actual permission:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">Permission</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">content</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'><span class="nx">currentUserBinding</span><span class="o">:</span> <span class="s2">&quot;App.currentUser&quot;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">App</span><span class="p">.</span><span class="nx">CanCreatePost</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Permission</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">can</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;currentUser.isAdmin&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}.</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;currentUser.isAdmin&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>We want to refer to this with a more friendly name in our templates, we could figure out that <code>createPost</code> maps to <code>App.CanCreatePost</code> by
+capitalizing and prepending with 'Can', but instead lets make a simple registry:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">Permissions</span> <span class="o">=</span> <span class="p">{</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">_perms</span><span class="o">:</span>    <span class="p">{},</span>
+</span><span class='line'><span class="nx">register</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">klass</span><span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">_perms</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">klass</span><span class="p">;</span> <span class="p">},</span>
+</span><span class='line'><span class="nx">get</span><span class="o">:</span>      <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">_perms</span><span class="p">[</span><span class="nx">name</span><span class="p">].</span><span class="nx">create</span><span class="p">(</span><span class="nx">attrs</span><span class="p">);</span> <span class="p">},</span>
+</span><span class='line'><span class="nx">can</span><span class="o">:</span>      <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;can&quot;</span><span class="p">);</span> <span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>This lets us register new permissions anywhere and assigns a friendly name which we can use throughout our app.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>blog/permissions.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>  <span class="nx">App</span><span class="p">.</span><span class="nx">Permissions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s2">&quot;createPost&quot;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Permission</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">can</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;currentUser.isAdmin&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}.</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;currentUser.isAdmin&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">}));</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">App</span><span class="p">.</span><span class="nx">Permissions</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s2">&quot;editPost&quot;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Permission</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">can</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;currentUser.isAdmin&quot;</span><span class="p">)</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;content.author.id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;currentUser.id&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}.</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;currentUser.isAdmin&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">}));</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>We now have a couple of permissions which have a <code>can</code> property we can bind to and friendly names to lookup from the templates.
+All our helper needs to do is take the passed in name, create an appropriate permission with any attributes and pass that off
+to the <code>boundIf</code> helper.</p>
+
+<p>After bit of trial and error, I ended up with the following:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>can-helper.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>  <span class="kd">var</span> <span class="nx">get</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">get</span><span class="p">,</span> <span class="nx">isGlobalPath</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">isGlobalPath</span><span class="p">,</span> <span class="nx">normalizePath</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">normalizePath</span><span class="p">;</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">getProp</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="k">if</span> <span class="p">(</span><span class="nx">isGlobalPath</span><span class="p">(</span><span class="nx">property</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">get</span><span class="p">(</span><span class="nx">property</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">normalizePath</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">get</span><span class="p">(</span><span class="nx">path</span><span class="p">.</span><span class="nx">root</span><span class="p">,</span> <span class="nx">path</span><span class="p">.</span><span class="nx">path</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">};</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="nx">Handlebars</span><span class="p">.</span><span class="nx">registerHelper</span><span class="p">(</span><span class="s1">&#39;can&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">permissionName</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">options</span><span class="p">){</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="kd">var</span> <span class="nx">attrs</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">permission</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// property is optional, if we&#39;ve only got 2 arguments then the property contains our options</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">options</span> <span class="o">=</span> <span class="nx">property</span><span class="p">;</span>
+</span><span class='line'>  <span class="nx">property</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">context</span> <span class="o">=</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span> <span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="nx">amp</span><span class="p">;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">||</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">attrs</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// if we&#39;ve got a property name, get its value and set it to the permission&#39;s content</span>
+</span><span class='line'><span class="c1">// this will set the passed in `post` to the content eg:</span>
+</span><span class='line'><span class="c1">// {{#can editPost post}} ... {{/can}}</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="nx">property</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">attrs</span><span class="p">.</span><span class="nx">content</span> <span class="o">=</span> <span class="nx">getProp</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// if we&#39;ve got any options, find their values eg:</span>
+</span><span class='line'><span class="c1">// {{#can createPost project:Project user:App.currentUser}} ... {{/can}}</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">options</span><span class="p">.</span><span class="nx">hash</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">path</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">hash</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">attrs</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">getProp</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// find &amp;amp; create the permission with the supplied attributes</span>
+</span><span class='line'><span class="nx">permission</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Permissions</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">permissionName</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// ensure boundIf uses permission as context and not the view/controller</span>
+</span><span class='line'><span class="c1">// otherwise it looks for &#39;can&#39; in the wrong place</span>
+</span><span class='line'><span class="nx">options</span><span class="p">.</span><span class="nx">contexts</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// bind it all together and kickoff the observers</span>
+</span><span class='line'><span class="k">return</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Handlebars</span><span class="p">.</span><span class="nx">helpers</span><span class="p">.</span><span class="nx">boundIf</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">permission</span><span class="p">,</span> <span class="s2">&quot;can&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>That's it, now we can show/hide content based on user permissions and have them automatically update when a user
+logs in or their permissions change.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Breaking up your routes in Ember.js]]></title>

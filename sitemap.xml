@@ -19,8 +19,14 @@
         <lastmod>2012-10-09T21:19:13+01:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://livsey.org/blog/2012/10/16/writing-a-helper-to-check-permissions-in-ember-dot-js/
+        </loc>
+        <lastmod>2012-10-16T16:34:17+01:00</lastmod>
+    </url>
+    <url>
         <loc>http://livsey.org/blog/archives/</loc>
-        <lastmod>2012-10-09T21:19:13+01:00</lastmod>
+        <lastmod>2012-10-16T16:34:17+01:00</lastmod>
     </url>
     <url>
         <loc>http://livsey.org/cv/</loc>
@@ -28,6 +34,6 @@
     </url>
     <url>
         <loc>http://livsey.org/</loc>
-        <lastmod>2012-10-09T21:19:13+01:00</lastmod>
+        <lastmod>2012-10-16T16:34:17+01:00</lastmod>
     </url>
 </urlset>
