@@ -52,7 +52,7 @@ Let's take a look at [from the source](https://github.com/emberjs/ember.js/blob/
 and see how `if` works:
 
 {% codeblock ember-handlebars/lib/helpers/binding.js %}
-EmberHandlebars.registerHelper('if', function(context, options) {
+Ember.Handlebars.registerHelper('if', function(context, options) {
   Ember.assert("You must pass exactly one argument to the if helper", arguments.length === 2);
   Ember.assert("You must pass a block to the if helper", options.fn && options.fn !== Handlebars.VM.noop);
 
@@ -63,7 +63,7 @@ EmberHandlebars.registerHelper('if', function(context, options) {
 This just does some sanity checking and hands off to [`boundIf`](https://github.com/emberjs/ember.js/blob/bbb6f5f0bd7d9f6f1951fc2306f09b4be3fcfb7d/packages/ember-handlebars/lib/helpers/binding.js#L151):
 
 {% codeblock ember-handlebars/lib/helpers/binding.js %}
-EmberHandlebars.registerHelper('boundIf', function(property, fn) {
+Ember.Handlebars.registerHelper('boundIf', function(property, fn) {
   var context = (fn.contexts && fn.contexts[0]) || this;
   var func = function(result) {
     if (Ember.typeOf(result) === 'array') {
