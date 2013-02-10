@@ -2,38 +2,42 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://livsey.org/blog/2011/08/29/ship-ship-hooray/</loc>
-        <lastmod>2012-10-09T17:53:51+01:00</lastmod>
+        <lastmod>2013-02-10T19:19:42+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://livsey.org/blog/2012/02/23/using-rack-proxy-to-serve-multiple-rails-apps-from-the-same-domain-and-port/
         </loc>
-        <lastmod>2012-10-09T18:02:10+01:00</lastmod>
+        <lastmod>2013-02-10T19:19:42+00:00</lastmod>
     </url>
     <url>
         <loc>http://livsey.org/blog/2012/02/23/should-your-user-care-about-authentication/</loc>
-        <lastmod>2012-10-09T18:02:14+01:00</lastmod>
+        <lastmod>2013-02-10T19:19:42+00:00</lastmod>
     </url>
     <url>
         <loc>http://livsey.org/blog/2012/10/09/breaking-up-your-routes-in-ember-dot-js/</loc>
-        <lastmod>2012-10-09T21:19:13+01:00</lastmod>
+        <lastmod>2013-02-10T19:19:42+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://livsey.org/blog/2012/10/16/writing-a-helper-to-check-permissions-in-ember-dot-js/
         </loc>
-        <lastmod>2012-10-16T16:43:10+01:00</lastmod>
+        <lastmod>2013-02-10T19:21:15+00:00</lastmod>
+    </url>
+    <url>
+        <loc>http://livsey.org/blog/2013/02/10/integrating-pusher-with-ember/</loc>
+        <lastmod>2013-02-10T21:37:47+00:00</lastmod>
     </url>
     <url>
         <loc>http://livsey.org/blog/archives/</loc>
-        <lastmod>2012-10-16T16:43:10+01:00</lastmod>
+        <lastmod>2013-02-10T21:37:47+00:00</lastmod>
     </url>
     <url>
         <loc>http://livsey.org/cv/</loc>
-        <lastmod>2012-10-09T17:53:51+01:00</lastmod>
+        <lastmod>2013-02-10T19:19:42+00:00</lastmod>
     </url>
     <url>
         <loc>http://livsey.org/</loc>
-        <lastmod>2012-10-16T16:43:10+01:00</lastmod>
+        <lastmod>2013-02-10T21:37:47+00:00</lastmod>
     </url>
 </urlset>
