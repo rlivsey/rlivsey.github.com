@@ -1,0 +1,159 @@
+---
+layout: post
+title: "Tick Tock - Tracking the passage of time in Ember.js"
+date: 2013-02-20 16:12
+comments: true
+categories: ember javascript
+---
+
+Lets say you let your users edit comments they've posted for up to 5 minutes, we want to display an edit
+button on all comments posted by the current person until that 5 minutes is over.
+
+Our comment template might look something like this:
+
+{% codeblock comment.handlebars lang:html %}{% raw %}
+  <p>{{content}}</p>
+  <p>By: {{postedBy.fullName}}</p>
+  <p>{{#if isEditable}}<button {{action edit}}>edit</button>{{/if}}</p>
+{% endraw %}{% endcodeblock %}
+
+This could be backed by a fairly simple controller for the comment:
+
+{% codeblock comment-controller.js %}
+App.CommentController = Ember.ObjectController.extend({
+  isEditable: function(){
+    var fiveMinutesInMs = 5*60*1000;
+    var now = new Date();
+    var fiveMinutesAgo = (new Date()).setTime(now.getTime() - fiveMinutesInMs);
+
+    return this.get("postedBy") == this.get("currentPerson") &&
+           this.get("postedAt") > fiveMinutesAgo;
+  }.property("postedBy", "currentPerson", "postedAt")
+});
+{% endcodeblock %}
+
+`currentPerson` could be bound to another controller or injected into all controllers depending on how
+your app works.
+
+That covers only showing the edit button if the comment was posted by the current logged in person and
+is less than 5 minutes old.
+
+That's all good, but we want to automatically hide the edit button once 5 minutes has elapsed so we need to
+track the passage of time too. We could add a timer to the controller and have that tick every minute or so:
+
+{% codeblock comment-controller.js %}
+App.CommentController = Ember.ObjectController.extend({
+  init: function() {
+    this.tick();
+    this._super();
+  },
+
+  tick: function() {
+    // forces isEditable to be recalculated as it's bound to `postedAt`
+    this.notifyPropertyChange("postedAt");
+
+    var oneMinute = 1000 * 60;
+    var self = this;
+    setTimeout(function(){ self.tick(); }, oneMinute)
+  }
+});
+{% endcodeblock %}
+
+That'll work, but then every single comment which is displayed will have its own timer set. It's also something we'll end up
+repeating in every bit of the app which does something based on the time.
+
+How about we move it into the view?
+
+{% codeblock comment-view.js %}
+App.CommentView = Ember.View.extend({
+
+  didInsertElement: function() {
+    this.tick();
+  },
+
+  willDestroyElement: function() {
+    clearTimeout(this._timer);
+  },
+
+  tick: function() {
+    // forces isEditable to be recalculated as it's bound to `postedAt`
+    this.get("content").notifyPropertyChange("postedAt");
+
+    var oneMinute = 1000 * 60;
+    var self = this;
+    this._timer = setTimeout(function(){ self.tick(); }, oneMinute)
+  },
+
+  isEditable: function(){
+    // as before
+  }.property("content.postedBy", "controller.currentPerson", "content.postedAt")
+});
+{% endcodeblock %}
+
+Hmm, that's better in that we know when the timer is kicked off and we can tear it down when the comment is
+removed from the view, but we'd have to update the template to point to `view.isEditable` and `isEditable`
+is getting a bit unweildy having to bind to `content` and `controller`. If it's ugly it probably isn't right,
+so lets scrap this train of thought and rethink things.
+
+We know that every comment needs to know the current time and be updated when it changes, so lets introduce
+a domain object to model that:
+
+{% codeblock clock.js %}
+var ONE_SECOND = 1000
+
+App.Clock = Ember.Object.extend({
+  second: null,
+  minute: null,
+  hour:   null,
+
+  init: function() {
+    this.tick();
+  },
+
+  tick: function() {
+    var now = new Date()
+
+    this.setProperties({
+      second: now.getSeconds(),
+      minute: now.getMinutes(),
+      hour:   now.getHours()
+    });
+
+    var self = this;
+    setTimeout(function(){ self.tick(); }, ONE_SECOND)
+  }
+});
+{% endcodeblock %}
+
+That's a simple clock that we can instantiate and it'll tick every second that our app's running.
+We can use injections to give every controller access to the same clock instance:
+
+{% codeblock lang:javascript %}
+Ember.Application.initializer({
+  name: "clock",
+  initialize: function(container, application) {
+    container.optionsForType('clock', { singleton: true });
+    container.register('clock', 'main', application.Clock);
+    container.typeInjection('controller', 'clock', 'clock:main');
+  }
+});
+
+// don't break ObjectController
+Ember.ControllerMixin.reopen({ clock: null });
+{% endcodeblock %}
+
+Now every controller has access to the same clock, so lets update our comment controller to use it:
+
+{% codeblock comment-controller.js %}
+App.CommentController = Ember.ObjectController.extend({
+  isEditable: function(){
+    // as before
+  }.property("postedBy", "currentPerson", "postedAt", "clock.minute")
+});
+{% endcodeblock %}
+
+All we've done is add `clock.minute` to the property bindings which causes this to automatically update
+once a minute.
+
+We can now reuse that logic anywhere in our application, just add `clock.second`, `clock.minute` or `clock.hour`
+to property bindings and they'll be automatically re-calculated at the appropriate points in time.
