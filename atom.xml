@@ -4,7 +4,7 @@
   <title><![CDATA[Livsey.org]]></title>
   <link href="http://livsey.org/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2013-02-10T21:38:46+00:00</updated>
+  <updated>2013-02-20T17:07:07+00:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name><![CDATA[Richard Livsey]]></name>
@@ -12,6 +12,262 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Tick Tock - Tracking the passage of time in Ember.js]]></title>
+    <link href="http://livsey.org/blog/2013/02/20/tick-tock/"/>
+    <updated>2013-02-20T16:12:00+00:00</updated>
+    <id>http://livsey.org/blog/2013/02/20/tick-tock</id>
+    <content type="html"><![CDATA[<p>Lets say you let your users edit comments they&#8217;ve posted for up to 5 minutes, we want to display an edit
+button on all comments posted by the current person until that 5 minutes is over.</p>
+
+<p>Our comment template might look something like this:</p>
+
+<figure class='code'><figcaption><span>comment.handlebars  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'>  <span class="nt">&lt;p&gt;</span>{{content}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;p&gt;</span>By: {{postedBy.fullName}}<span class="nt">&lt;/p&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;p&gt;</span>{{#if isEditable}}<span class="nt">&lt;button</span> <span class="err">{{</span><span class="na">action</span> <span class="na">edit</span><span class="err">}}</span><span class="nt">&gt;</span>edit<span class="nt">&lt;/button&gt;</span>{{/if}}<span class="nt">&lt;/p&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This could be backed by a fairly simple controller for the comment:</p>
+
+<figure class='code'><figcaption><span>comment-controller.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">CommentController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">isEditable</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">fiveMinutesInMs</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">fiveMinutesAgo</span> <span class="o">=</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()).</span><span class="nx">setTime</span><span class="p">(</span><span class="nx">now</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">-</span> <span class="nx">fiveMinutesInMs</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;postedBy&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;currentPerson&quot;</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>           <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;postedAt&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nx">fiveMinutesAgo</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}.</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;postedBy&quot;</span><span class="p">,</span> <span class="s2">&quot;currentPerson&quot;</span><span class="p">,</span> <span class="s2">&quot;postedAt&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>currentPerson</code> could be bound to another controller or injected into all controllers depending on how
+your app works.</p>
+
+<p>That covers only showing the edit button if the comment was posted by the current logged in person and
+is less than 5 minutes old.</p>
+
+<p>That&#8217;s all good, but we want to automatically hide the edit button once 5 minutes has elapsed so we need to
+track the passage of time too. We could add a timer to the controller and have that tick every minute or so:</p>
+
+<figure class='code'><figcaption><span>comment-controller.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">CommentController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">tick</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">_super</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">tick</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// forces isEditable to be recalculated as it&#39;s bound to `postedAt`</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">notifyPropertyChange</span><span class="p">(</span><span class="s2">&quot;postedAt&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">oneMinute</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">60</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="nx">self</span><span class="p">.</span><span class="nx">tick</span><span class="p">();</span> <span class="p">},</span> <span class="nx">oneMinute</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&#8217;ll work, but then every single comment which is displayed will have its own timer set. It&#8217;s also something we&#8217;ll end up
+repeating in every bit of the app which does something based on the time.</p>
+
+<p>How about we move it into the view?</p>
+
+<figure class='code'><figcaption><span>comment-view.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">CommentView</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">didInsertElement</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">tick</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">willDestroyElement</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">clearTimeout</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_timer</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">tick</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// forces isEditable to be recalculated as it&#39;s bound to `postedAt`</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">).</span><span class="nx">notifyPropertyChange</span><span class="p">(</span><span class="s2">&quot;postedAt&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">oneMinute</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">60</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">_timer</span> <span class="o">=</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="nx">self</span><span class="p">.</span><span class="nx">tick</span><span class="p">();</span> <span class="p">},</span> <span class="nx">oneMinute</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">isEditable</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>    <span class="c1">// as before</span>
+</span><span class='line'>  <span class="p">}.</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;content.postedBy&quot;</span><span class="p">,</span> <span class="s2">&quot;controller.currentPerson&quot;</span><span class="p">,</span> <span class="s2">&quot;content.postedAt&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hmm, that&#8217;s better in that we know when the timer is kicked off and we can tear it down when the comment is
+removed from the view, but we&#8217;d have to update the template to point to <code>view.isEditable</code> and <code>isEditable</code>
+is getting a bit unweildy having to bind to <code>content</code> and <code>controller</code>. If it&#8217;s ugly it probably isn&#8217;t right,
+so lets scrap this train of thought and rethink things.</p>
+
+<p>We know that every comment needs to know the current time and be updated when it changes, so lets introduce
+a domain object to model that:</p>
+
+<figure class='code'><figcaption><span>clock.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">ONE_SECOND</span> <span class="o">=</span> <span class="mi">1000</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">Clock</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">second</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">minute</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">hour</span><span class="o">:</span>   <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">tick</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">tick</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">setProperties</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">second</span><span class="o">:</span> <span class="nx">now</span><span class="p">.</span><span class="nx">getSeconds</span><span class="p">(),</span>
+</span><span class='line'>      <span class="nx">minute</span><span class="o">:</span> <span class="nx">now</span><span class="p">.</span><span class="nx">getMinutes</span><span class="p">(),</span>
+</span><span class='line'>      <span class="nx">hour</span><span class="o">:</span>   <span class="nx">now</span><span class="p">.</span><span class="nx">getHours</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="nx">self</span><span class="p">.</span><span class="nx">tick</span><span class="p">();</span> <span class="p">},</span> <span class="nx">ONE_SECOND</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&#8217;s a simple clock that we can instantiate and it&#8217;ll tick every second that our app&#8217;s running.
+We can use injections to give every controller access to the same clock instance:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">initializer</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;clock&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">initialize</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">container</span><span class="p">,</span> <span class="nx">application</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">container</span><span class="p">.</span><span class="nx">optionsForType</span><span class="p">(</span><span class="s1">&#39;clock&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">singleton</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
+</span><span class='line'>    <span class="nx">container</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">&#39;clock&#39;</span><span class="p">,</span> <span class="s1">&#39;main&#39;</span><span class="p">,</span> <span class="nx">application</span><span class="p">.</span><span class="nx">Clock</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">container</span><span class="p">.</span><span class="nx">typeInjection</span><span class="p">(</span><span class="s1">&#39;controller&#39;</span><span class="p">,</span> <span class="s1">&#39;clock&#39;</span><span class="p">,</span> <span class="s1">&#39;clock:main&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// don&#39;t break ObjectController</span>
+</span><span class='line'><span class="nx">Ember</span><span class="p">.</span><span class="nx">ControllerMixin</span><span class="p">.</span><span class="nx">reopen</span><span class="p">({</span> <span class="nx">clock</span><span class="o">:</span> <span class="kc">null</span> <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now every controller has access to the same clock, so lets update our comment controller to use it:</p>
+
+<figure class='code'><figcaption><span>comment-controller.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">CommentController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">isEditable</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+</span><span class='line'>    <span class="c1">// as before</span>
+</span><span class='line'>  <span class="p">}.</span><span class="nx">property</span><span class="p">(</span><span class="s2">&quot;postedBy&quot;</span><span class="p">,</span> <span class="s2">&quot;currentPerson&quot;</span><span class="p">,</span> <span class="s2">&quot;postedAt&quot;</span><span class="p">,</span> <span class="s2">&quot;clock.minute&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All we&#8217;ve done is add <code>clock.minute</code> to the property bindings which causes this to automatically update
+once a minute.</p>
+
+<p>We can now reuse that logic anywhere in our application, just add <code>clock.second</code>, <code>clock.minute</code> or <code>clock.hour</code>
+to property bindings and they&#8217;ll be automatically re-calculated at the appropriate points in time.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Integrating Pusher with Ember]]></title>
