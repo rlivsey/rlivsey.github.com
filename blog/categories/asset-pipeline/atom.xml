@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: asset-pipeline | Livsey.org]]></title>
+  <link href="http://livsey.org/blog/categories/asset-pipeline/atom.xml" rel="self"/>
+  <link href="http://livsey.org/"/>
+  <updated>2013-05-16T19:26:17+01:00</updated>
+  <id>http://livsey.org/</id>
+  <author>
+    <name><![CDATA[Richard Livsey]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Cache Busting with Rake Pipeline]]></title>
+    <link href="http://livsey.org/blog/2013/05/16/cache-busting-with-rake-pipeline/"/>
+    <updated>2013-05-16T18:24:00+01:00</updated>
+    <id>http://livsey.org/blog/2013/05/16/cache-busting-with-rake-pipeline</id>
+    <content type="html"><![CDATA[<p>I'm using <a href="https://github.com/livingsocial/rake-pipeline">rake-pipeline</a> on a project at the moment and wanted to implement cache-busting by renaming asset files if they have changes.</p>
+
+<p>A quick look at <a href="https://github.com/wycats/rake-pipeline-web-filters">rake-pipeline-web-filters</a> and we see the <a href="https://github.com/wycats/rake-pipeline-web-filters/blob/master/lib/rake-pipeline-web-filters/cache_buster_filter.rb">Cache Buster</a> filter, it looks just the job:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Assetfile  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">output</span> <span class="s2">&quot;public&quot;</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;input &quot;app&quot; do</span>
+</span><span class='line'><span class="sr">  match &quot;javascripts/</span><span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;*/&lt;</span><span class="sr">/em&gt;.coffee&quot; do&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">coffee_script</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  match &quot;javascripts/</span><span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;*/&lt;</span><span class="sr">/em&gt;.js&quot; do&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">concat</span> <span class="s2">&quot;javascripts/app.js&quot;</span>
+</span><span class='line'><span class="n">cache_buster</span>
+</span><span class='line'><span class="n">uglify</span>
+</span><span class='line'><span class="n">gzip</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Ok, not so fast. That would have been a rather short blog post...</p>
+
+<p>It turns out that the cache buster <a href="https://github.com/wycats/rake-pipeline-web-filters/issues/27">doesn't work if it's after a concat</a> and this is an issue which is impossible to fix with the way rake-pipeline works.</p>
+
+<p>Rake pipeline filters generate the filenames they output when they are initialized, which means you can't have a filter which has a filename based on the output of a previous filter as you'd want for cache busting. When the cache buster tries to generate the filename the concat hasn't yet happened so it has no contents to work with.</p>
+
+<p>If we can't dynamically change the filename in a filter, how do we write a cache buster for rake-pipeline which actually works? We need to check all the files <em>before</em> rake-pipeline runs and use that knowledge to set the output name, something like:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Assetfile  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">output</span> <span class="s2">&quot;public&quot;</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;JS_VERSION = ?? # magic happens here&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">input</span> <span class="s2">&quot;app&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">match</span> <span class="s2">&quot;javascripts/&lt;em&gt;*/&lt;/em&gt;.coffee&quot;</span> <span class="k">do</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;coffee_script</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="n">match</span> <span class="s2">&quot;javascripts/&lt;em&gt;*/&lt;/em&gt;.js&quot;</span> <span class="k">do</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;concat &quot;javascripts/</span><span class="n">app</span><span class="o">-</span><span class="c1">#{JS_VERSION}.js&quot;</span>
+</span><span class='line'><span class="n">cache_buster</span>
+</span><span class='line'><span class="n">uglify</span>
+</span><span class='line'><span class="n">gzip</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>But how do we set <code>JS_VERSION</code>?</p>
+
+<p>We want to generate some kind of key based on the contents of the files in the <code>javascripts</code> directory which will only change if
+there's a change to the files. We could iterate through each of the files and get the MD5 hash of each, then take an MD5 of all the hashes to generate one master hash, or maybe we loop through and find the most recent mtime and generate a key from that? All sounds a bit messy and resource intensive for such a simple task.</p>
+
+<p>If only there was a way we could find out the last change of a file in a directory, some kind of system which tracked all the versions of our files that we could ask...</p>
+
+<p>Turns out git is quite good at tracking changes to files, it's also rather easy to get a log of what's changed in a directory and we can ask for the hash of the most recent change with <code>git log -n1 --pretty=format:"%H" app/javascripts</code>.</p>
+
+<p>Plugging that into the above we get:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Assetfile  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">output</span> <span class="s2">&quot;public&quot;</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;JS_VERSION = &lt;code&gt;git log -n1 --pretty=format:&quot;%H&quot; app/</span><span class="n">javascripts</span><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">input</span> <span class="s2">&quot;app&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">match</span> <span class="s2">&quot;javascripts/&lt;em&gt;*/&lt;/em&gt;.coffee&quot;</span> <span class="k">do</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;coffee_script</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;</span><span class="sr">/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;  end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="n">match</span> <span class="s2">&quot;javascripts/&lt;em&gt;*/&lt;/em&gt;.js&quot;</span> <span class="k">do</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;concat &quot;javascripts/</span><span class="n">app</span><span class="o">-</span><span class="c1">#{JS_VERSION}.js&quot;</span>
+</span><span class='line'><span class="n">cache_buster</span>
+</span><span class='line'><span class="n">uglify</span>
+</span><span class='line'><span class="n">gzip</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Now we have a new <code>JS_VERSION</code> any time there are any changes committed to the app/javascripts directory.</p>
+
+<p>Job done!</p>
+]]></content>
+  </entry>
+  
+</feed>
