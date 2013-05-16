@@ -47,7 +47,6 @@ input "app" do
 
   match "javascripts/**/*.js" do
     concat "javascripts/app-#{JS_VERSION}.js"
-    cache_buster
     uglify
     gzip
   end
@@ -77,7 +76,6 @@ input "app" do
 
   match "javascripts/**/*.js" do
     concat "javascripts/app-#{JS_VERSION}.js"
-    cache_buster
     uglify
     gzip
   end
