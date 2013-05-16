@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ruby | Livsey.org]]></title>
   <link href="http://livsey.org/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2013-05-16T19:26:17+01:00</updated>
+  <updated>2013-05-16T19:27:37+01:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name><![CDATA[Richard Livsey]]></name>
@@ -95,7 +95,6 @@
 <span class='line-number'>19</span>
 <span class='line-number'>20</span>
 <span class='line-number'>21</span>
-<span class='line-number'>22</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">output</span> <span class="s2">&quot;public&quot;</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="sr">&lt;p&gt;JS_VERSION = ?? # magic happens here&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
@@ -111,7 +110,6 @@
 </span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="n">match</span> <span class="s2">&quot;javascripts/&lt;em&gt;*/&lt;/em&gt;.js&quot;</span> <span class="k">do</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;concat &quot;javascripts/</span><span class="n">app</span><span class="o">-</span><span class="c1">#{JS_VERSION}.js&quot;</span>
-</span><span class='line'><span class="n">cache_buster</span>
 </span><span class='line'><span class="n">uglify</span>
 </span><span class='line'><span class="n">gzip</span>
 </span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
@@ -153,7 +151,6 @@ there's a change to the files. We could iterate through each of the files and ge
 <span class='line-number'>19</span>
 <span class='line-number'>20</span>
 <span class='line-number'>21</span>
-<span class='line-number'>22</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">output</span> <span class="s2">&quot;public&quot;</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="sr">&lt;p&gt;JS_VERSION = &lt;code&gt;git log -n1 --pretty=format:&quot;%H&quot; app/</span><span class="n">javascripts</span><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
@@ -169,7 +166,6 @@ there's a change to the files. We could iterate through each of the files and ge
 </span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="n">match</span> <span class="s2">&quot;javascripts/&lt;em&gt;*/&lt;/em&gt;.js&quot;</span> <span class="k">do</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="sr">&lt;pre&gt;&lt;code&gt;concat &quot;javascripts/</span><span class="n">app</span><span class="o">-</span><span class="c1">#{JS_VERSION}.js&quot;</span>
-</span><span class='line'><span class="n">cache_buster</span>
 </span><span class='line'><span class="n">uglify</span>
 </span><span class='line'><span class="n">gzip</span>
 </span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>

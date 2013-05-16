@@ -162,7 +162,6 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-<span class='line-number'>16</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">output</span> <span class="s2">&quot;public&quot;</span>
 </span><span class='line'>
 </span><span class='line'><span class="no">JS_VERSION</span> <span class="o">=</span> <span class="sc">??</span> <span class="c1"># magic happens here</span>
@@ -174,7 +173,6 @@
 </span><span class='line'>
 </span><span class='line'>  <span class="n">match</span> <span class="s2">&quot;javascripts/**/*.js&quot;</span> <span class="k">do</span>
 </span><span class='line'>    <span class="n">concat</span> <span class="s2">&quot;javascripts/app-</span><span class="si">#{</span><span class="no">JS_VERSION</span><span class="si">}</span><span class="s2">.js&quot;</span>
-</span><span class='line'>    <span class="n">cache_buster</span>
 </span><span class='line'>    <span class="n">uglify</span>
 </span><span class='line'>    <span class="n">gzip</span>
 </span><span class='line'>  <span class="k">end</span>
@@ -209,7 +207,6 @@ there&#8217;s a change to the files. We could iterate through each of the files 
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-<span class='line-number'>16</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">output</span> <span class="s2">&quot;public&quot;</span>
 </span><span class='line'>
 </span><span class='line'><span class="no">JS_VERSION</span> <span class="o">=</span> <span class="sb">`git log -n1 --pretty=format:&quot;%H&quot; app/javascripts`</span>
@@ -221,7 +218,6 @@ there&#8217;s a change to the files. We could iterate through each of the files 
 </span><span class='line'>
 </span><span class='line'>  <span class="n">match</span> <span class="s2">&quot;javascripts/**/*.js&quot;</span> <span class="k">do</span>
 </span><span class='line'>    <span class="n">concat</span> <span class="s2">&quot;javascripts/app-</span><span class="si">#{</span><span class="no">JS_VERSION</span><span class="si">}</span><span class="s2">.js&quot;</span>
-</span><span class='line'>    <span class="n">cache_buster</span>
 </span><span class='line'>    <span class="n">uglify</span>
 </span><span class='line'>    <span class="n">gzip</span>
 </span><span class='line'>  <span class="k">end</span>
