@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Introducing Fireplace - Livsey.org</title>
+  <meta name="author" content="Richard Livsey">
+
+  
+  <meta name="description" content="I&#8217;ve been using Firebase with Ember.js quite a lot recently and have just
+released Fireplace, a library to integrate the two more easily. It&# &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://livsey.org/blog/2013/12/13/introducing-fireplace/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Livsey.org" type="application/atom+xml">
+  <!--Fonts from Google's Web font directory at http://google.com/webfonts -->
+<link href='http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-449827-2']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Livsey.org</a></h1>
+  
+    <h2>Musings on Technology &amp; Startup Life</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:livsey.org" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul role=main-navigation>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Introducing Fireplace</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-13T21:33:00+00:00" pubdate data-updated="true">Dec 13<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I&#8217;ve been using <a href="http://firebase.com">Firebase</a> with <a href="http://emberjs.com">Ember.js</a> quite a lot recently and have just
+released <a href="http://github.com/rlivsey/fireplace">Fireplace</a>, a library to integrate the two more easily. It&#8217;s been
+extracted from a rather large application so is driven from real world usage.</p>
+
+<p>There&#8217;s <a href="https://github.com/firebase/emberFire">EmberFire</a> but, aside from it not existing when I started to write Fireplace,
+it doesn&#8217;t support relationships or many other basic / advanced features I&#8217;d want in an Ember persistence library.</p>
+
+<p>Anyone who&#8217;s used <a href="https://github.com/ebryn/ember-model">Ember Model</a> or <a href="https://github.com/emberjs/data">Ember Data</a>
+should feel at home with Fireplace as I&#8217;ve taken inspiration (and code) from many parts of them when developing it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">attr</span>    <span class="o">=</span> <span class="nx">FP</span><span class="p">.</span><span class="nx">attr</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">hasMany</span> <span class="o">=</span> <span class="nx">FP</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">Person</span> <span class="o">=</span> <span class="nx">FP</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">firstName</span><span class="o">:</span>   <span class="nx">attr</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">lastName</span><span class="o">:</span>    <span class="nx">attr</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">dateOfBirth</span><span class="o">:</span> <span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">isAdmin</span><span class="o">:</span>     <span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span> <span class="p">{</span><span class="k">default</span><span class="o">:</span> <span class="kc">false</span><span class="p">}),</span>
+</span><span class='line'>  <span class="nx">addresses</span><span class="o">:</span>   <span class="nx">hasMany</span><span class="p">()</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">Address</span> <span class="o">=</span> <span class="nx">FP</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">street</span><span class="o">:</span>   <span class="nx">attr</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">city</span><span class="o">:</span>     <span class="nx">attr</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">postcode</span><span class="o">:</span> <span class="nx">attr</span><span class="p">()</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Fireplace has full support for promises, so fits in nicely with Ember&#8217;s router:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">PeopleIndexRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="s2">&quot;person&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nx">limit</span><span class="o">:</span> <span class="mi">10</span><span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">PeopleShowRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="s2">&quot;person&quot;</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">person_id</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Check out the <a href="http://github.com/rlivsey/fireplace">project on Github</a> for more details.</p>
+
+<p>Feedback &amp; pull requests are very welcome!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Richard Livsey</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-13T21:33:00+00:00" pubdate data-updated="true">Dec 13<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ember/'>ember</a>, <a class='category' href='/blog/categories/firebase/'>firebase</a>, <a class='category' href='/blog/categories/fireplace/'>fireplace</a>, <a class='category' href='/blog/categories/javascript/'>javascript</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://livsey.org/blog/2013/12/13/introducing-fireplace/" data-via="rlivsey" data-counturl="http://livsey.org/blog/2013/12/13/introducing-fireplace/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/05/16/cache-busting-with-rake-pipeline/" title="Previous Post: Cache Busting with Rake Pipeline">&laquo; Cache Busting with Rake Pipeline</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>By Richard Livsey</h1>
+  <p>
+    Co-founder of <a href="http://minutebase.com">MinuteBase</a>, meeting collaboration made easy.
+  </p>
+  <p>
+    Need Ruby / Javascript / MongoDB consulting? <a href="mailto:richard@livsey.org">Get in touch</a>.
+  </p>
+  <p>
+    <a href="/cv/">CV</a>
+    &bull;
+    <a href="http://linkedin.com/in/rlivsey">LinkedIn</a>
+    &bull;
+    <a href="http://github.com/rlivsey">GitHub</a>
+  </p>
+  <p>
+    +44 (0) 7841 260 797
+  </p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/12/13/introducing-fireplace/">Introducing Fireplace</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/16/cache-busting-with-rake-pipeline/">Cache Busting with Rake Pipeline</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/20/tick-tock/">Tick Tock - Tracking the passage of time in Ember.js</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/10/integrating-pusher-with-ember/">Integrating Pusher with Ember</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/16/writing-a-helper-to-check-permissions-in-ember-dot-js/">Writing a helper to check permissions in Ember.js</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("rlivsey", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/rlivsey" class="twitter-follow-button" data-show-count="false">Follow @rlivsey</a>
+  
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Richard Livsey -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'livsey-org';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://livsey.org/blog/2013/12/13/introducing-fireplace/';
+        var disqus_url = 'http://livsey.org/blog/2013/12/13/introducing-fireplace/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

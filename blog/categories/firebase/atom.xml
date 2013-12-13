@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: firebase | Livsey.org]]></title>
+  <link href="http://livsey.org/blog/categories/firebase/atom.xml" rel="self"/>
+  <link href="http://livsey.org/"/>
+  <updated>2013-12-13T22:26:06+00:00</updated>
+  <id>http://livsey.org/</id>
+  <author>
+    <name><![CDATA[Richard Livsey]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Introducing Fireplace]]></title>
+    <link href="http://livsey.org/blog/2013/12/13/introducing-fireplace/"/>
+    <updated>2013-12-13T21:33:00+00:00</updated>
+    <id>http://livsey.org/blog/2013/12/13/introducing-fireplace</id>
+    <content type="html"><![CDATA[<p>I've been using <a href="http://firebase.com">Firebase</a> with <a href="http://emberjs.com">Ember.js</a> quite a lot recently and have just
+released <a href="http://github.com/rlivsey/fireplace">Fireplace</a>, a library to integrate the two more easily. It's been
+extracted from a rather large application so is driven from real world usage.</p>
+
+<p>There's <a href="https://github.com/firebase/emberFire">EmberFire</a> but, aside from it not existing when I started to write Fireplace,
+it doesn't support relationships or many other basic / advanced features I'd want in an Ember persistence library.</p>
+
+<p>Anyone who's used <a href="https://github.com/ebryn/ember-model">Ember Model</a> or <a href="https://github.com/emberjs/data">Ember Data</a>
+should feel at home with Fireplace as I've taken inspiration (and code) from many parts of them when developing it.</p>
+
+<p>```javascript
+var attr    = FP.attr,</p>
+
+<pre><code>hasMany = FP.hasMany;
+</code></pre>
+
+<p>App.Person = FP.Model.extend({
+  firstName:   attr(),
+  lastName:    attr(),
+  dateOfBirth: attr("date"),
+  isAdmin:     attr("boolean", {default: false}),
+  addresses:   hasMany()
+});</p>
+
+<p>App.Address = FP.Model.extend({
+  street:   attr(),
+  city:     attr(),
+  postcode: attr()
+});
+```</p>
+
+<p>Fireplace has full support for promises, so fits in nicely with Ember's router:</p>
+
+<p>```javascript
+App.PeopleIndexRoute = Ember.Route.extend({
+  model: function() {</p>
+
+<pre><code>return this.store.fetch("person", {limit: 10});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>App.PeopleShowRoute = Ember.Route.extend({
+  model: function(params) {</p>
+
+<pre><code>return this.store.fetch("person", params.person_id);
+</code></pre>
+
+<p>  }
+})
+```</p>
+
+<p>Check out the <a href="http://github.com/rlivsey/fireplace">project on Github</a> for more details.</p>
+
+<p>Feedback &amp; pull requests are very welcome!</p>
+]]></content>
+  </entry>
+  
+</feed>

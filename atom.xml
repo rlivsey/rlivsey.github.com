@@ -4,7 +4,7 @@
   <title><![CDATA[Livsey.org]]></title>
   <link href="http://livsey.org/atom.xml" rel="self"/>
   <link href="http://livsey.org/"/>
-  <updated>2013-05-16T19:27:37+01:00</updated>
+  <updated>2013-12-13T22:26:06+00:00</updated>
   <id>http://livsey.org/</id>
   <author>
     <name><![CDATA[Richard Livsey]]></name>
@@ -12,6 +12,89 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Introducing Fireplace]]></title>
+    <link href="http://livsey.org/blog/2013/12/13/introducing-fireplace/"/>
+    <updated>2013-12-13T21:33:00+00:00</updated>
+    <id>http://livsey.org/blog/2013/12/13/introducing-fireplace</id>
+    <content type="html"><![CDATA[<p>I&#8217;ve been using <a href="http://firebase.com">Firebase</a> with <a href="http://emberjs.com">Ember.js</a> quite a lot recently and have just
+released <a href="http://github.com/rlivsey/fireplace">Fireplace</a>, a library to integrate the two more easily. It&#8217;s been
+extracted from a rather large application so is driven from real world usage.</p>
+
+<p>There&#8217;s <a href="https://github.com/firebase/emberFire">EmberFire</a> but, aside from it not existing when I started to write Fireplace,
+it doesn&#8217;t support relationships or many other basic / advanced features I&#8217;d want in an Ember persistence library.</p>
+
+<p>Anyone who&#8217;s used <a href="https://github.com/ebryn/ember-model">Ember Model</a> or <a href="https://github.com/emberjs/data">Ember Data</a>
+should feel at home with Fireplace as I&#8217;ve taken inspiration (and code) from many parts of them when developing it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">attr</span>    <span class="o">=</span> <span class="nx">FP</span><span class="p">.</span><span class="nx">attr</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">hasMany</span> <span class="o">=</span> <span class="nx">FP</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">Person</span> <span class="o">=</span> <span class="nx">FP</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">firstName</span><span class="o">:</span>   <span class="nx">attr</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">lastName</span><span class="o">:</span>    <span class="nx">attr</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">dateOfBirth</span><span class="o">:</span> <span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">),</span>
+</span><span class='line'>  <span class="nx">isAdmin</span><span class="o">:</span>     <span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span> <span class="p">{</span><span class="k">default</span><span class="o">:</span> <span class="kc">false</span><span class="p">}),</span>
+</span><span class='line'>  <span class="nx">addresses</span><span class="o">:</span>   <span class="nx">hasMany</span><span class="p">()</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">Address</span> <span class="o">=</span> <span class="nx">FP</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">street</span><span class="o">:</span>   <span class="nx">attr</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">city</span><span class="o">:</span>     <span class="nx">attr</span><span class="p">(),</span>
+</span><span class='line'>  <span class="nx">postcode</span><span class="o">:</span> <span class="nx">attr</span><span class="p">()</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Fireplace has full support for promises, so fits in nicely with Ember&#8217;s router:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">PeopleIndexRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="s2">&quot;person&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nx">limit</span><span class="o">:</span> <span class="mi">10</span><span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">PeopleShowRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">fetch</span><span class="p">(</span><span class="s2">&quot;person&quot;</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">person_id</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Check out the <a href="http://github.com/rlivsey/fireplace">project on Github</a> for more details.</p>
+
+<p>Feedback &amp; pull requests are very welcome!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cache Busting with Rake Pipeline]]></title>
